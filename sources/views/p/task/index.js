@@ -223,35 +223,85 @@ export default class TaskPage extends JetView {
           ],
         },
         {
-          view: "list",
-          // autoheight:true,
-          // autoheight:true,
-          // scroll:false,
+          // https://snippet.webix.com/t35bvms3
+          // view: "list",
+          view: "datatable",
+          // autoheight: true,
+          scroll: true,
+          header: false,
           fixedRowHeight: false,
-          // ready(){
-          //   this.adjustRowHeight()
-          // },
-          // height:350,
-          type: {
-            height: "auto", // height for data items, not for the component
+          fillspace: true,
+          ready() {
+            this.adjustRowHeight();
           },
+          // height:350,
+          // type: {
+          //   height: "auto", // height for data items, not for the component
+          // },
           // fixedRowHeight:false,  rowLineHeight:25, rowHeight:25,
           id: prefix + "comment_list",
           // <span class='webix_icon mdi mdi-close remove-icon' title='Remove'></span>
-          template: function (obj) {
-            return `<div><span class='webix_strong'>${
-              obj.name
-            }</span> <span style='color:grey'>create at: ${getDateFormatted(
-              obj.date_creation
-            )} update at: ${getDateFormatted(obj.date_modification)}</span>
-            <span class='webix_icon mdi mdi-pencil update-icon' title='Update' style='height:30px;'></span>
-            </div>
-            <div>${
-              obj.comment
-            }<span class='webix_icon mdi mdi-close update-icon' title='Remove' style='height:30px;'></span></div>
+          // template: function (obj) {
+          //   return `<div><span class='webix_strong'>${
+          //     obj.name
+          //   }</span> <span style='color:grey'>create at: ${getDateFormatted(
+          //     obj.date_creation
+          //   )} update at: ${getDateFormatted(obj.date_modification)}</span>
+          //   <span class='webix_icon mdi mdi-pencil update-icon' title='Update' style='height:30px;'></span>
+          //   </div>
+          //   <div>${
+          //     obj.comment
+          //   }<span class='webix_icon mdi mdi-close update-icon' title='Remove' style='height:30px;'></span></div>
 
-            `;
-          },
+          //   `;
+          // },
+          css: "comment_list",
+          // columns: [
+          //   {
+          //     id: "name",
+          //     fillspace: true,
+          //     template: function (obj) {
+          //       return `
+          //       <div class="chat">
+          //         <div data-time="16:35" class="msg sent">Hi!<br>What's up?</div>
+          //         <div data-time="Anna 16:36" class="msg rcvd">Hi dear! <br>Doing some CSS research, you?</div>
+          //         <div data-time="16:38" class="msg sent">Also learning some cool CSS stuff 🦄</div>
+          //         <div data-time="16:38" class="msg sent">!!</div>
+          //         <div data-time="16:38" class="msg sent">Up for a coffee today? ☕</div>
+          //         <div data-time="Anna 16:40" class="msg rcvd">It would be a pleasure!</div>
+          //         <div data-time="Anna 16:40" class="msg rcvd">😍</div>
+          //       </div>`;
+          //     },
+          //   },
+          // ],
+          columns: [
+            {
+              id: "name",
+              fillspace: true,
+              template: function (obj) {
+                return `<div class='comment_list_panel'>${
+                  obj.name
+                } <span style='color:grey'>create at: ${getDateFormatted(
+                  obj.date_creation
+                )} update at: ${getDateFormatted(
+                  obj.date_modification
+                )}</span><br>
+                <div class='comment_list_msg'>${obj.comment}</div>
+                </div>`;
+              },
+            },
+          ],
+          // https://codepen.io/AllThingsSmitty/pen/jommGQ
+          // https://stackoverflow.com/questions/71154905/css-for-chat-room-speech-bubble-position
+          // https://samuelkraft.com/blog/ios-chat-bubbles-css
+          // https://codepen.io/rajesh-kumar-dash/full/vvWJdN
+          // https://codepen.io/n7best/pen/OXXLNQ
+          // https://codepen.io/FilipRastovic/pen/pXgqKK
+          // https://codepen.io/kvzivn/pen/EdNVbQ
+          // https://codepen.io/andrewerrico/pen/XzdmrP
+          // https://codepen.io/dianastanciu/pen/PowQmba
+          // https://codepen.io/CodeLlama/pen/mdOPweQ
+          // https://codepen.io/TawFiQ/pen/mWmwao
           onClick: {
             "update-icon": function (e, id, node) {
               const item = this.getItem(id);
