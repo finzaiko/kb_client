@@ -12,7 +12,7 @@ import { userProfile } from "../../../models/UserProfile";
 
 const prefix = state.prefix;
 
-async function doCreateTask() {
+async function doCreateTask(_this) {
   const formValues = $$(prefix + "_form").getValues();
   const projectId = stateProject.selId;
   const taskColId = await getColumnByProjectId(projectId);
@@ -41,16 +41,27 @@ async function doCreateTask() {
 
     if (photo) {
       webix.message({ text: "Task created, uploaded", type: "success" });
+      backToGrid(_this);
     } else {
       webix.message({ text: "Task fail save, upload", type: "error" });
     }
   } else {
     if (taskId) {
       webix.message({ text: "Task created", type: "success" });
+      backToGrid(_this);
     } else {
       webix.message({ text: "Task fail to save", type: "success" });
     }
   }
+}
+
+function backToGrid(_this) {
+  const backRoute =
+    state.routePath == "p.task.add"
+      ? `p.project?id=${stateProject.selId}`
+      : `p.task.view?id=${state.selId}`;
+
+  _this.show(backRoute);
 }
 
 export default class TaskForm extends JetView {
@@ -63,12 +74,7 @@ export default class TaskForm extends JetView {
           view: "icon",
           icon: "mdi mdi-arrow-left",
           click: () => {
-            const backRoute =
-              state.routePath == "p.task.add"
-                ? `p.project?id=${stateProject.selId}`
-                : `p.task.view?id=${state.selId}`;
-
-            this.show(backRoute);
+            backToGrid(this);
           },
         },
         {
@@ -203,7 +209,8 @@ export default class TaskForm extends JetView {
           label: "Submit",
           css: "webix_primary",
           click: function () {
-            doCreateTask();
+            backToGrid(this);
+            // doCreateTask(this);
             //   const _this = this;
             //   const inputs = $$(prefix + "_form").getValues();
             //   inputs.project_id = state.selId;

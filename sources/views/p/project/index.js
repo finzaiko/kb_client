@@ -19,6 +19,12 @@ export default class ProjectPage extends JetView {
                 this.$scope.show("p.task.add?project_id=" + state.selId);
               },
             },
+            {
+              view: "text",
+              placeholder: "Search..",
+              value: "status:open",
+              width: 400,
+            }
           ],
         },
         {
@@ -26,10 +32,26 @@ export default class ProjectPage extends JetView {
           id: prefix + "table",
           select: "row",
           columns: [
-            { id: "title", header: "Title", width: 200 },
-            { id: "description", header: "Description", fillspace: true },
-            { id: "creator_id", header: "Create by", width: 100 },
-            { id: "date_modification", header: "Update at", width: 100 },
+            {
+              id: "title",
+              header: ["Title", { content: "textFilter" }],
+              width: 200,
+            },
+            {
+              id: "description",
+              header: ["Description", { content: "textFilter" }],
+              fillspace: true,
+            },
+            {
+              id: "creator_id",
+              header: ["Created by", { content: "textFilter" }],
+              width: 100,
+            },
+            {
+              id: "date_modification",
+              header: ["Update at", { content: "textFilter" }],
+              width: 100,
+            },
           ],
           on: {
             onItemClick: function (id) {

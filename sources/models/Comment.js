@@ -1,12 +1,13 @@
 import { API_URL, CODE_PREFIX } from "../config/config";
 import { getUserEncoded } from "./UserProfile";
 
-const path = "project";
+const path = "comment";
 
 export let state = {
   prefix: CODE_PREFIX + path,
   isEdit: false,
   dataSelected: {},
+  dataComments: [],
   selId: null,
 };
 
@@ -63,6 +64,25 @@ export function updateComment(id, content) {
       content: content,
     },
   };
+  return webix
+    .ajax()
+    .headers({
+      "Content-Type": "application/json",
+      Authorization: `Basic ${getUserEncoded()}`,
+    })
+    .post(API_URL, params)
+    .then((r) => r.json().result);
+}
+
+export function removeComment(id) {
+  const params = {
+    "jsonrpc": "2.0",
+    "method": "removeComment",
+    "id": 328836871,
+    "params": {
+        "comment_id": id
+    }
+};
   return webix
     .ajax()
     .headers({

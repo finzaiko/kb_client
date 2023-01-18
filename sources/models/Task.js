@@ -69,8 +69,6 @@ export function createTask(projectId, colBoardId, userId, title, description) {
     })
     .post(API_URL, params)
     .then((r) => {
-      console.log("r.json()", r.json().result);
-
       return r.json().result;
     });
 }
