@@ -1,5 +1,6 @@
 var path = require("path");
 var webpack = require("webpack");
+var replace = require("replace");
 
 module.exports = function(env) {
 
@@ -91,6 +92,17 @@ module.exports = function(env) {
 		out.path = path.join(__dirname, "dist", sub);
 		out.publicPath = "/dist/"+sub+"/";
 	}
+
+	// ARIFIN
+	const build = new Date() * 1;
+	replace({
+		regex: /[?][0-9]+/g,
+		replacement: `?${build}`,
+		paths: ["./build/index.html"],
+		recursive: true,
+		silent: true
+	});
+	// END: ARIFIN
 
 	return config;
 };
