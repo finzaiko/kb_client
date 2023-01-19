@@ -1,9 +1,12 @@
 
 FROM node:16-alpine as builder
-WORKDIR /app
+ENV WDIR=/app
+WORKDIR ${WDIR}
+ARG API_SERVER_ARG
+ENV API_SERVER=${API_SERVER_ARG}
 COPY . .
 RUN npm ci
-RUN npm run build
+RUN npm run buildconf --endpoint=${API_SERVER}
 
 FROM nginx:1.21.0-alpine as production
 ENV NODE_ENV production
