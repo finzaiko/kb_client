@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint sources/",
     "build": "webpack --env production",
+    "buildconf": "webpack --env production --env endpoint=$npm_config_endpoint",
     "module": "webpack --env production --env module",
     "standalone": "webpack --env production --env module --env standalone",
     "start": "webpack-dev-server --open"

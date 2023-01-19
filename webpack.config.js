@@ -59,7 +59,10 @@ module.exports = function(env) {
 				VERSION: `"${pack.version}"`,
 				APPNAME: `"${pack.name}"`,
 				PRODUCTION : production,
-				BUILD_AS_MODULE : (asmodule || standalone)
+				BUILD_AS_MODULE : (asmodule || standalone),
+				"process.env": {
+					ENDPOINT: JSON.stringify(env.endpoint),
+				},
 			})
 		],
 		devServer:{
