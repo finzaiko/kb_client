@@ -3,3 +3,4 @@ codebase/
 node_modules/
 *.log
 dist/
+references.md

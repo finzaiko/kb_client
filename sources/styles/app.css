@@ -211,3 +211,16 @@
     font-size: 16px;
     margin-bottom: 10px;
 }
+
+.white_background {
+    background: #fff;
+}
+
+.open_file_uploader{
+    padding-right: 10px;
+}
+
+.img_attach_container{
+    background: grey;
+    height: 100%;
+}

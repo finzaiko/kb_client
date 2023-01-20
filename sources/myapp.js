@@ -9,7 +9,7 @@ webix.protoUI(
     name: "photo",
     $allowsClear: true,
     defaults: {
-      width: 260,
+      width: 360,
       height: 260,
       template: function (data, view) {
         view.$view.style.backgroundImage = `url(${data.src})`;
@@ -20,6 +20,8 @@ webix.protoUI(
       },
     },
     $init(config) {
+      console.log('config',config);
+
       if (config.value) {
         this.$ready.push(function () {
           this.setValue(config.value);

@@ -19,6 +19,7 @@ import { getDateFormatted } from "../../../helpers/ui";
 import { BACKEND_URL } from "../../../config/config";
 import { userProfile } from "../../../models/UserProfile";
 import { TaskPhotoPreview } from "./TaskPhotoPreview";
+import { TaskAttachScreenshot } from "./TaskAttachScreenshot";
 
 const prefix = state + "_page_";
 
@@ -33,7 +34,9 @@ async function loadComments() {
     } <span style='color:grey'>create at: ${getDateFormatted(
       obj.date_creation
     )} update at: ${getDateFormatted(obj.date_modification)}</span><br>
-    <div class='comment_list_msg'><span class='comment_msg'>${obj.comment}</span>
+    <div class='comment_list_msg'><span class='comment_msg'>${
+      obj.comment
+    }</span>
     <span class='action-icon'>
       <span class='webix_icon mdi mdi-pencil update-icon' title='Update' data-comment_id=${
         obj.id
@@ -101,15 +104,45 @@ export default class TaskPage extends JetView {
               type: "icon",
               icon: "mdi mdi-pencil",
               tooltip: "Edit",
-              css: {"padding-right":"10px"}
+              css: { "padding-right": "10px" },
             },
             {
-              view: "button",
-              autowidth: true,
+              view: "uploader",
+              value: "Open file",
+              width: 64,
               type: "icon",
               icon: "mdi mdi-attachment",
               tooltip: "Attachment",
-              css: {"padding-right":"10px"}
+              accept: "image/jpeg, image/png, image/jpg",
+              autosend: false,
+              css: "webix_secondary open_file_uploader",
+              multiple: false,
+              id: prefix + "_open_uploader",
+              upload: url + "/test",
+              on: {
+                onBeforeFileAdd: function (file) {
+                  if (file.size && file.size > 4000000) {
+                    webix.message({
+                      text: "Image too big,  4MB limit size",
+                      type: "error",
+                    });
+                    return false;
+                  }
+                },
+                onAfterFileAdd: function (upload) {
+                  var file = upload.file;
+                  var reader = new FileReader();
+
+                  reader.onload = function (event) {
+                    $$("form_photo").setValue(event.target.result);
+                  };
+                  reader.readAsDataURL(file);
+
+                  $$(prefix + "_open_uploader").hide();
+                  $$(prefix + "_do_uploader").show();
+                  return false;
+                },
+              },
             },
             {
               view: "button",
@@ -117,7 +150,10 @@ export default class TaskPage extends JetView {
               type: "icon",
               icon: "mdi mdi-fit-to-screen-outline",
               tooltip: "Copy paste from Screenshot",
-              css: {"padding-right":"10px"}
+              css: { "padding-right": "10px" },
+              click: function () {
+                this.$scope.ui(TaskAttachScreenshot).show();
+              },
             },
             {
               view: "button",
@@ -125,7 +161,7 @@ export default class TaskPage extends JetView {
               type: "icon",
               icon: "mdi mdi-camera-enhance-outline",
               tooltip: "Capture from Camera",
-              css: {"padding-right":"10px"}
+              css: { "padding-right": "10px" },
             },
             {},
           ],
@@ -134,98 +170,31 @@ export default class TaskPage extends JetView {
         {
           id: prefix + "file_view_panel",
           height: 100,
-          hidden: true,
           cols: [
-            // { width: 10, css: "photo_panel_spacer" },
-            // {
-            //   css: "photo_panel",
-            //   rows: [
-            //     {
-            //       view: "photo",
-            //       name: "photo",
-            //       css: "form_photo",
-            //       id: "form_photo",
-            //       borderless: false,
-            //       width: 120,
-            //       height: 65,
-            //     },
-            //     {
-            //       css: "photo_panel_spacer",
-            //       cols: [
-            //         {},
-            //         {
-            //           view: "uploader",
-            //           value: "Open file",
-            //           accept: "image/jpeg, image/png, image/jpg",
-            //           autosend: false,
-            //           multiple: false,
-            //           id: prefix + "_open_uploader",
-            //           autowidth: true,
-            //           upload: url + "/test",
-            //           on: {
-            //             onBeforeFileAdd: function (file) {
-            //               if (file.size && file.size > 4000000) {
-            //                 webix.message({
-            //                   text: "Image too big,  4MB limit size",
-            //                   type: "error",
-            //                 });
-            //                 return false;
-            //               }
-            //             },
-            //             onAfterFileAdd: function (upload) {
-            //               var file = upload.file;
-            //               var reader = new FileReader();
-
-            //               reader.onload = function (event) {
-            //                 $$("form_photo").setValue(event.target.result);
-            //               };
-            //               reader.readAsDataURL(file);
-
-            //               $$(prefix + "_open_uploader").hide();
-            //               $$(prefix + "_do_uploader").show();
-            //               return false;
-            //             },
-            //           },
-            //         },
-            //         {
-            //           view: "button",
-            //           value: "Upload",
-            //           id: prefix + "_do_uploader",
-            //           css: "webix_warning",
-            //           hidden: true,
-            //           autowidth: true,
-            //           click: function () {
-            //             let imageBase64 = $$("form_photo").getValue();
-            //             const fileName = Object.values(
-            //               $$(prefix + "_open_uploader").files.data.pull
-            //             )[0].name;
-
-            //             imageBase64 = imageBase64.replace(
-            //               "data:image/png;base64,",
-            //               ""
-            //             );
-            //             imageBase64 = imageBase64.replace(" ", "+");
-
-            //             uploadByTaskId(
-            //               stateProject.selId,
-            //               state.selId,
-            //               fileName,
-            //               imageBase64
-            //             );
-            //           },
-            //         },
-            //         {},
-            //       ],
-            //     },
-            //   ],
-            // },
-            // { width: 10, css: "photo_panel_spacer" },
+            {
+              width: 130,
+              cols: [
+                { width: 10, css: "white_background" },
+                {
+                  view: "photo",
+                  name: "photo",
+                  css: "form_photo",
+                  id: "form_photo",
+                  borderless: false,
+                  width: 120,
+                  height: 65,
+                },
+                { width: 10, css: "white_background" },
+              ],
+            },
+            { id: prefix + "file_view_empty", css: "white_background" },
             {
               view: "dataview",
               id: prefix + "file_view",
               height: 100,
               xCount: 4,
               select: true,
+              hidden: true,
               type: {
                 height: 100,
                 width: "auto",
@@ -323,7 +292,7 @@ export default class TaskPage extends JetView {
                 {},
               ],
             },
-            {height:20},
+            { height: 20 },
           ],
         },
       ],
@@ -346,7 +315,8 @@ export default class TaskPage extends JetView {
     const images = await getFileByTaskId(state.selId);
     const fileId = this.$$(prefix + "file_view");
     if (images.length > 0) {
-      this.$$(prefix + "file_view_panel").show();
+      this.$$(prefix + "file_view_empty").hide();
+      this.$$(prefix + "file_view").show();
       fileId.parse(images);
       state.images = images;
       var viewsArray = [];
@@ -361,7 +331,8 @@ export default class TaskPage extends JetView {
 
       state.imageView = viewsArray;
     } else {
-      this.$$(prefix + "file_view_panel").hide();
+      this.$$(prefix + "file_view_empty").show();
+      this.$$(prefix + "file_view").hide();
     }
   }
 
