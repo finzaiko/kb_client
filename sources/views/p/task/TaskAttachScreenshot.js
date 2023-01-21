@@ -1,9 +1,56 @@
 import { JetView } from "webix-jet";
+import { getImgAsString, PhotoDropPaste } from "../../../helpers/photodrop";
 import { state, url } from "../../../models/Task";
 
 const prefix = state.prefix + "_attachscreen_";
 
-let video, canvas;
+let video,
+  canvas,
+  cameraFront = false;
+
+function checkCamera() {
+  navigator.mediaDevices
+    .enumerateDevices()
+    .then(function (devices) {
+      console.log("device", devices);
+    })
+    .catch(function (err) {
+      console.log("err", err);
+    });
+}
+
+function flipCamera() {
+  cameraFront = !cameraFront;
+  stopCamera();
+  startCamera();
+}
+
+async function startCamera() {
+  // checkCamera();
+  video = document.querySelector("#video");
+  canvas = document.querySelector("#camera_canvas");
+  let stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: cameraFront ? "user" : "environment" },
+    audio: false,
+  });
+  video.srcObject = stream;
+}
+
+function captureCamera() {
+  canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+  let imgDataUrl = canvas.toDataURL("image/jpeg");
+  $$("form_photo").setValue(imgDataUrl);
+  // video.style.display = "none";
+}
+
+function stopCamera() {
+  const mediaStream = video.srcObject;
+  const tracks = mediaStream.getTracks();
+  if (tracks.length > 0) {
+    tracks[0].stop();
+  }
+}
+
 function WindowForm() {
   const winId = prefix + "win";
   return {
@@ -25,6 +72,7 @@ function WindowForm() {
           tooltip: "Close Me",
           align: "right",
           click: function () {
+            stopCamera();
             $$(winId).close();
           },
         },
@@ -33,99 +81,134 @@ function WindowForm() {
     body: {
       rows: [
         // {
+        //   id: prefix + "file_tmpl",
         //   template: `
         //     <p id="img_screenshot_empty">Paste your image here…</p>
         //     <img id="img_screenshot"/>
         //     `,
         // },
         {
+          id: prefix + "file_tmpl",
           template: `
-          <video id="video" width="320" height="240" autoplay></video>
-            <div id="dataurl-container">
-                <canvas id="canvas" width="320" height="240"></canvas>
-                <div id="dataurl-header">Image Data URL</div>
-                <textarea id="dataurl" readonly></textarea>
-            </div>
+            <canvas style="border:1px solid grey;" id="my_canvas" width="200" height="200"></canvas>
             `,
         },
         {
-          view: "button",
-          label: "Camera start",
-          click: async function () {
-            let camera_button = document.querySelector("#start-camera");
-            video = document.querySelector("#video");
-            let click_button = document.querySelector("#click-photo");
-            canvas = document.querySelector("#canvas");
-
-            let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-            video.srcObject = stream;
-
-            // camera_button.addEventListener('click', async function() {
-            //     let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-            //   video.srcObject = stream;
-            // });
-
-            // click_button.addEventListener('click', function() {
-            //     canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-            //     let image_data_url = canvas.toDataURL('image/jpeg');
-
-            //     // data url of the image
-            //     console.log(image_data_url);
-            // });
-          }
+          id: prefix + "camera_tmpl",
+          hidden: true,
+          template: `
+          <div class='camera_attach_container'>
+          <video id="video" width="100%" height="100%" autoplay></video>
+          <canvas id="camera_canvas" width="320" height="240"></canvas>
+          <div>
+          `,
         },
         {
-          view: "button",
-          label: "stop cam",
-          click: function () {
-            // const video = document.querySelector('video');
-
-            // A video's MediaStream object is available through its srcObject attribute
-            const mediaStream = video.srcObject;
-
-            // Through the MediaStream, you can get the MediaStreamTracks with getTracks():
-            const tracks = mediaStream.getTracks();
-
-            // Tracks are returned as an array, so if you know you only have one, you can stop it with:
-            tracks[0].stop();
-
-            // Or stop all like so:
-            // tracks.forEach(track => track.stop())
-          },
+          cols: [
+            {},
+            {
+              view: "button",
+              type: "icon",
+              icon: "mdi mdi-file",
+              autowidth: true,
+              tooltip: "Use file",
+              hidden: true,
+              id: prefix + "use_file",
+              click: function () {
+                $$(prefix + "camera_tmpl").hide();
+                $$(prefix + "file_tmpl").show();
+                $$(prefix + "camera_start").show();
+                $$(prefix + "camera_capture").hide();
+                $$(prefix + "camera_frontback").hide();
+                $$(prefix + "use_file").hide();
+                stopCamera();
+                this.hide();
+              },
+              css: { "padding-left": "10px", "padding-right": "10px" },
+            },
+            {
+              view: "button",
+              id: prefix + "camera_start",
+              type: "icon",
+              icon: "mdi mdi-camera",
+              tooltip: "Use Camera",
+              autowidth: true,
+              click: function () {
+                if ($$(prefix + "file_tmpl")) $$(prefix + "file_tmpl").hide();
+                $$(prefix + "camera_tmpl").show();
+                $$(prefix + "camera_capture").show();
+                $$(prefix + "camera_frontback").show();
+                $$(prefix + "use_file").show();
+                startCamera();
+                this.hide();
+              },
+              css: { "padding-left": "10px", "padding-right": "10px" },
+            },
+            {
+              view: "button",
+              type: "icon",
+              icon: "mdi mdi-camera-flip",
+              autowidth: true,
+              tooltip: "Camera " + cameraFront ? "Back" : "Front",
+              hidden: true,
+              id: prefix + "camera_frontback",
+              click: function () {
+                flipCamera();
+              },
+              css: { "padding-left": "10px", "padding-right": "10px" },
+            },
+            {
+              view: "button",
+              type: "icon",
+              icon: "mdi mdi-camera-iris",
+              autowidth: true,
+              tooltip: "Capture Camera",
+              hidden: true,
+              id: prefix + "camera_capture",
+              click: function () {
+                captureCamera();
+                $$(winId).close();
+              },
+              css: { "padding-left": "10px", "padding-right": "10px" },
+            },
+            {},
+          ],
         },
-        {
-          view: "button",
-          label: "capture camera",
-          click: function () {
-            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-            let image_data_url = canvas.toDataURL('image/jpeg');
-
-            // data url of the image
-            console.log(image_data_url);
-          }
-        }
       ],
     },
     on: {
       onShow() {
-        document.onpaste = function(pasteEvent) {
-          // consider the first item (can be easily extended for multiple items)
-          var item = pasteEvent.clipboardData.items[0];
+        // document.onpaste = function (pasteEvent) {
+        //   let item = pasteEvent.clipboardData.items[0];
 
-          if (item.type.indexOf("image") === 0)
-          {
-              var blob = item.getAsFile();
+        //   if (item.type.indexOf("image") === 0) {
+        //     const blob = item.getAsFile();
 
-              var reader = new FileReader();
-              reader.onload = function(event) {
-                  document.getElementById("img_screenshot").src = event.target.result;
-                  $$("form_photo").setValue(event.target.result);
-                  // $$(winId).close();
-              };
+        //     const reader = new FileReader();
+        //     reader.onload = function (event) {
+        //       document.getElementById("img_screenshot").src =
+        //         event.target.result;
+        //       $$("form_photo").setValue(event.target.result);
+        //     };
 
-              reader.readAsDataURL(blob);
+        //     reader.readAsDataURL(blob);
+        //   }
+        // };
+
+        const canvasElementId = "my_canvas";
+        let CLIPBOARD = new PhotoDropPaste.CLIPBOARD_CLASS(
+          canvasElementId,
+          true,
+          function () {
+            console.log("paste_auto finished");
+            const imgUrl = getImgAsString(canvasElementId)
+            console.log('imgUrl',imgUrl);
+
           }
-      }
+        );
+      },
+      onDestruct() {
+        stopCamera();
       },
     },
   };
@@ -139,7 +222,5 @@ export class TaskAttachScreenshot extends JetView {
     this.getRoot().show(target);
   }
   init(view) {}
-  ready(view) {
-
-  }
+  ready(view) {}
 }

@@ -220,7 +220,18 @@
     padding-right: 10px;
 }
 
-.img_attach_container{
-    background: grey;
+.camera_attach_container{
+    /* background: grey; */
     height: 100%;
+}
+
+#camera_canvas {
+    /* background: yellow !important; */
+    display: block;
+    margin: 0 auto;
+}
+
+#my_canvas{
+    width: 320px;
+    height: 240px;
 }
