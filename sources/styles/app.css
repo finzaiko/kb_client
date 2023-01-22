@@ -182,9 +182,10 @@
     padding-top: 10px;
 }
 
-.comment_msg{
+.comment_msg {
     white-space: pre-line;
 }
+
 .comment_list_panel {
     background: #E5E5EA;
     padding: 10px;
@@ -201,12 +202,12 @@
     padding: 15px;
 }
 
-.task_action{
+.task_action {
     background: #fff;
     padding: 10px;
 }
 
-.task_view__title{
+.task_view__title {
     font-weight: 500;
     font-size: 16px;
     margin-bottom: 10px;
@@ -216,22 +217,33 @@
     background: #fff;
 }
 
-.open_file_uploader{
+.open_file_uploader {
     padding-right: 10px;
 }
 
-.camera_attach_container{
-    /* background: grey; */
+.camera_attach_container {
     height: 100%;
 }
 
 #camera_canvas {
-    /* background: yellow !important; */
     display: block;
     margin: 0 auto;
 }
 
-#my_canvas{
-    width: 320px;
-    height: 240px;
+#my_canvas {
+    width: 100%;
+    height: 100%;
+}
+
+p#img_screenshot_empty {
+    margin: 10px;
+    padding-left: 1px;
+}
+
+.capture_camera {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.capture_camera button span{
+    color: orange !important;
 }

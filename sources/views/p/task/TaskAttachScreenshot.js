@@ -1,5 +1,4 @@
 import { JetView } from "webix-jet";
-import { getImgAsString, PhotoDropPaste } from "../../../helpers/photodrop";
 import { state, url } from "../../../models/Task";
 
 const prefix = state.prefix + "_attachscreen_";
@@ -7,6 +6,35 @@ const prefix = state.prefix + "_attachscreen_";
 let video,
   canvas,
   cameraFront = false;
+
+const BlobToBase64 = function (urlObj, blob) {
+  let blobUrl = urlObj.createObjectURL(blob);
+
+  return new Promise((resolve, reject) => {
+    let img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = (err) => reject(err);
+    img.src = blobUrl;
+  }).then((img) => {
+    URL.revokeObjectURL(blobUrl);
+    // Limit to 256x256px while preserving aspect ratio
+    let [w, h] = [img.width, img.height];
+    let aspectRatio = w / h;
+    // Say the file is 1920x1080
+    // divide max(w,h) by 256 to get factor
+    let factor = Math.max(w, h) / 256;
+    w = w / factor;
+    h = h / factor;
+
+    let canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+
+    return canvas.toDataURL();
+  });
+};
 
 function checkCamera() {
   navigator.mediaDevices
@@ -80,18 +108,66 @@ function WindowForm() {
     },
     body: {
       rows: [
-        // {
-        //   id: prefix + "file_tmpl",
-        //   template: `
-        //     <p id="img_screenshot_empty">Paste your image here…</p>
-        //     <img id="img_screenshot"/>
-        //     `,
-        // },
         {
           id: prefix + "file_tmpl",
-          template: `
-            <canvas style="border:1px solid grey;" id="my_canvas" width="200" height="200"></canvas>
-            `,
+          rows: [
+            {
+              css: "img_screenshot_empty_tmpl",
+              cols: [
+                {
+                  view: "uploader",
+                  value: "Open file",
+                  accept: "image/jpeg, image/png, image/jpg",
+                  autosend: false,
+                  multiple: false,
+                  id: prefix + "_open_uploader",
+                  autowidth: true,
+                  upload: url + "/test",
+                  on: {
+                    onBeforeFileAdd: function (file) {
+                      if (file.size && file.size > 4000000) {
+                        webix.message({
+                          text: "Image too big,  4MB limit size",
+                          type: "error",
+                        });
+                        return false;
+                      }
+                    },
+                    onAfterFileAdd: function (upload) {
+                      var file = upload.file;
+                      var reader = new FileReader();
+
+                      reader.onload = function (event) {
+                        let imgTmpl = document.getElementById("img_screenshot");
+                        imgTmpl.style.backgroundImage = `url(${event.target.result})`;
+                        imgTmpl.style.backgroundRepeat = "no-repeat";
+                        imgTmpl.style.backgroundPosition = "center";
+                        imgTmpl.style.backgroundSize = "contain";
+                        imgTmpl.style.width = "100%";
+                        imgTmpl.style.height= "100%";
+
+                        $$("form_photo").setValue(event.target.result);
+                      };
+                      reader.readAsDataURL(file);
+
+                      // $$(prefix + "_open_uploader").hide();
+                      // $$(prefix + "_do_uploader").show();
+                      return false;
+                    },
+                  },
+                },
+                {
+                  type: "clean",
+                  template: `<p id="img_screenshot_empty"> or paste your image below here…</p>`,
+                },
+              ],
+            },
+            {
+              template: `
+              <img id="img_screenshot"/>
+              `,
+            },
+          ],
         },
         {
           id: prefix + "camera_tmpl",
@@ -124,7 +200,6 @@ function WindowForm() {
                 stopCamera();
                 this.hide();
               },
-              css: { "padding-left": "10px", "padding-right": "10px" },
             },
             {
               view: "button",
@@ -147,20 +222,8 @@ function WindowForm() {
             {
               view: "button",
               type: "icon",
-              icon: "mdi mdi-camera-flip",
-              autowidth: true,
-              tooltip: "Camera " + cameraFront ? "Back" : "Front",
-              hidden: true,
-              id: prefix + "camera_frontback",
-              click: function () {
-                flipCamera();
-              },
-              css: { "padding-left": "10px", "padding-right": "10px" },
-            },
-            {
-              view: "button",
-              type: "icon",
               icon: "mdi mdi-camera-iris",
+              css: "capture_camera",
               autowidth: true,
               tooltip: "Capture Camera",
               hidden: true,
@@ -169,7 +232,18 @@ function WindowForm() {
                 captureCamera();
                 $$(winId).close();
               },
-              css: { "padding-left": "10px", "padding-right": "10px" },
+            },
+            {
+              view: "button",
+              type: "icon",
+              icon: "mdi mdi-camera-flip",
+              autowidth: true,
+              tooltip: `Camera ${cameraFront ? "Back" : "Front"}`,
+              hidden: true,
+              id: prefix + "camera_frontback",
+              click: function () {
+                flipCamera();
+              },
             },
             {},
           ],
@@ -178,34 +252,69 @@ function WindowForm() {
     },
     on: {
       onShow() {
-        // document.onpaste = function (pasteEvent) {
-        //   let item = pasteEvent.clipboardData.items[0];
+        document.onpaste = function (pasteEvent) {
+          let item = pasteEvent.clipboardData.items[0];
 
-        //   if (item.type.indexOf("image") === 0) {
-        //     const blob = item.getAsFile();
+          if (item.type.indexOf("image") === 0) {
+            const blob = item.getAsFile();
 
-        //     const reader = new FileReader();
-        //     reader.onload = function (event) {
-        //       document.getElementById("img_screenshot").src =
-        //         event.target.result;
-        //       $$("form_photo").setValue(event.target.result);
-        //     };
+            const reader = new FileReader();
+            reader.onload = function (event) {
+              document.getElementById("img_screenshot").src =
+                event.target.result;
+              $$("form_photo").setValue(event.target.result);
+            };
 
-        //     reader.readAsDataURL(blob);
-        //   }
-        // };
-
-        const canvasElementId = "my_canvas";
-        let CLIPBOARD = new PhotoDropPaste.CLIPBOARD_CLASS(
-          canvasElementId,
-          true,
-          function () {
-            console.log("paste_auto finished");
-            const imgUrl = getImgAsString(canvasElementId)
-            console.log('imgUrl',imgUrl);
-
+            reader.readAsDataURL(blob);
           }
-        );
+        };
+
+        // document.addEventListener(
+        //   "dragover",
+        //   function (e) {
+        //     // prevent default to allow drop
+        //     e.preventDefault();
+        //   },
+        //   false
+        // );
+        // document.addEventListener("drop", function (e) {
+        //   // prevent default action (open as link for some elements)
+        //   // add event handler to canvas if desired instead of document
+        //   //debugger;
+        //   e.preventDefault();
+        //   let items = e.dataTransfer.items;
+        //   for (let i = 0; i < items.length; i++) {
+        //     if (items[i].type.indexOf("image") !== -1) {
+        //       //document.getElementById("instructions").style.visibility = "hidden";
+        //       //image
+        //       let blob = items[i].getAsFile();
+        //       let URLObj = window.URL || window.webkitURL;
+        //       let source = URLObj.createObjectURL(blob);
+        //       // console.log("source", source);
+        //       console.log('blob',blob);
+
+        //       BlobToBase64(URLObj, blob).then(r=>{
+        //         console.log('r',r);
+        //         $$("form_photo").setValue(r);
+        //       });
+
+        //       // _self.paste_createImage(source);
+        //     }
+        //   }
+        // });
+
+        // const canvasElementId = "my_canvas";
+        // let CLIPBOARD = new PhotoDropPaste.CLIPBOARD_CLASS(
+        //   canvasElementId,
+        //   true,
+        //   function () {
+        //     console.log("paste_auto finished");
+        //     const imgUrl = getImgAsString(canvasElementId)
+        //     console.log('imgUrl',imgUrl);
+        //     // $$("form_photo").setValue(imgUrl);
+
+        //   }
+        // );
       },
       onDestruct() {
         stopCamera();
