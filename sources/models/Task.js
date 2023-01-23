@@ -13,6 +13,7 @@ export let state = {
   routePath: "",
   images: [],
   imageView: [],
+  fileNameUpload: "",
 };
 
 export let url = `${API_URL}/${path}`;
@@ -73,6 +74,30 @@ export function createTask(projectId, colBoardId, userId, title, description) {
     });
 }
 
+export function updateTask(id, title, description) {
+  const params = {
+    jsonrpc: "2.0",
+    method: "updateTask",
+    id: 1406803059,
+    params: {
+      id: id,
+      title: title,
+      description: description,
+    },
+  };
+
+  return webix
+    .ajax()
+    .headers({
+      "Content-Type": "application/json",
+      Authorization: `Basic ${getUserEncoded()}`,
+    })
+    .post(API_URL, params)
+    .then((r) => {
+      return r.json().result;
+    });
+}
+
 export function getMyTask(projectId) {
   const params = {
     jsonrpc: "2.0",
@@ -92,7 +117,7 @@ export function getMyTask(projectId) {
     })
     .post(API_URL, params)
     .then((r) => {
-      console.log("r4", r.json());
+
       return r.json().result;
     });
 }
@@ -115,7 +140,7 @@ export function getTaskById(taskId) {
     })
     .post(API_URL, params)
     .then((r) => {
-      console.log("r4", r.json());
+
       return r.json().result;
     });
 }
@@ -138,7 +163,7 @@ export function getFileByTaskId(taskId) {
     })
     .post(API_URL, params)
     .then((r) => {
-      console.log("r4", r.json());
+
       return r.json().result;
     });
 }
@@ -159,16 +184,41 @@ export function uploadByTaskId(projectId, taskId, fileName, fileBase64) {
     })
     .post(API_URL, params)
     .then((r) => {
-      console.log("r4", r.json());
+
+      return r.json().result;
+    });
+}
+
+export function removeFile(taskId) {
+  const params = {
+    jsonrpc: "2.0",
+    method: "removeTaskFile",
+    id: 447036524,
+    params: [taskId],
+  };
+
+  return webix
+    .ajax()
+    .headers({
+      "Content-Type": "application/json",
+      Authorization: `Basic ${getUserEncoded()}`,
+    })
+    .post(API_URL, params)
+    .then((r) => {
+
       return r.json().result;
     });
 }
 
 export function imgTemplate(obj) {
-  return `<img src="${BACKEND_URL}/data/files/${obj.path}?${Date.now()}" class="content" ondragstart="return false"/>`;
+  return `<img src="${BACKEND_URL}/data/files/${
+    obj.path
+  }?${Date.now()}" class="photo_content" ondragstart="return false"/>`;
 }
 
 export function imgThumbTemplate(obj) {
   // return `<div style="background-image: url(${BACKEND_URL}/data/files/thumbnails/${obj.path}?${Date.now()});" class="content"></div>`;
-  return `<img src="${BACKEND_URL}/data/files/thumbnails/${obj.path}?${Date.now()}" class="content" ondragstart="return false"/>`;
+  return `<img src="${BACKEND_URL}/data/files/thumbnails/${
+    obj.path
+  }?${Date.now()}" class="photo_content" ondragstart="return false"/>`;
 }

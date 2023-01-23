@@ -17,7 +17,7 @@ export default class DataView extends JetView {
               .get(`${API_URL}/user/profile`)
               .then((a) => {
                 var b = a.json();
-                console.log("b", b);
+
               });
           },
         },
@@ -31,7 +31,7 @@ export default class DataView extends JetView {
               .post(`${API_URL}/user/status`)
               .then((a) => {
                 var b = a.json();
-                console.log("b", b);
+
               });
           },
         },

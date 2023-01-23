@@ -36,7 +36,7 @@ function WindowForm() {
           },
           on: {
             onShow: function (id) {
-              console.log("id>> ", id);
+
             },
           },
         },

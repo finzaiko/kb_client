@@ -2,7 +2,9 @@ import { JetView } from "webix-jet";
 import {
   createTask,
   getColumnByProjectId,
+  getTaskById,
   state,
+  updateTask,
   uploadByTaskId,
   url,
 } from "../../../models/Task";
@@ -11,6 +13,24 @@ import { defaultHeader } from "../../../helpers/api";
 import { userProfile } from "../../../models/UserProfile";
 
 const prefix = state.prefix;
+
+function backToGrid(_this) {
+  const backRoute =
+    state.routePath == "p.task.add"
+      ? `p.project?project_id=${stateProject.selId}`
+      : `p.task?project_id=${stateProject.selId}&id=${state.selId}`;
+  _this.show(backRoute);
+}
+
+async function doUpdateTask(_this, id) {
+  const formValues = $$(prefix + "_form").getValues();
+  const task = await updateTask(id, formValues.title, formValues.description);
+
+  if (task) {
+    webix.message({ text: "Task updated", type: "success" });
+    backToGrid(_this);
+  }
+}
 
 async function doCreateTask(_this) {
   const formValues = $$(prefix + "_form").getValues();
@@ -55,15 +75,6 @@ async function doCreateTask(_this) {
   }
 }
 
-function backToGrid(_this) {
-  const backRoute =
-    state.routePath == "p.task.add"
-      ? `p.project?id=${stateProject.selId}`
-      : `p.task.view?id=${state.selId}`;
-
-  _this.show(backRoute);
-}
-
 export default class TaskForm extends JetView {
   config() {
     const toolbar = {
@@ -105,6 +116,7 @@ export default class TaskForm extends JetView {
           height: 100,
         },
         {
+          id: prefix + "form_photo_panel",
           cols: [
             {
               rows: [
@@ -153,7 +165,8 @@ export default class TaskForm extends JetView {
                               reader.readAsDataURL(file);
 
                               $$(prefix + "_open_uploader").hide();
-                              $$(prefix + "_do_uploader").show();
+                              // $$(prefix + "_do_uploader").show();
+                              $$(prefix + "_cancel_file").show();
                               return false;
                             },
                           },
@@ -177,21 +190,31 @@ export default class TaskForm extends JetView {
                             );
                             imageBase64 = imageBase64.replace(" ", "+");
 
-                            console.log("imageBase64", imageBase64);
-
                             uploadByTaskId(
                               stateProject.selId,
                               state.selId,
                               fileName,
                               imageBase64
-                            );
+                            ).then((_) => {
+                              webix.message({
+                                text: "Upload success",
+                                type: "success",
+                              });
+                            });
                           },
                         },
                         {
                           view: "button",
                           type: "icon",
                           icon: "mdi mdi-close",
+                          id: prefix + "_cancel_file",
                           autowidth: true,
+                          hidden: true,
+                          click: function () {
+                            $$("form_photo").setValue();
+                            $$(prefix + "_open_uploader").show();
+                            this.hide();
+                          },
                         },
                         {},
                       ],
@@ -209,24 +232,14 @@ export default class TaskForm extends JetView {
           label: "Submit",
           css: "webix_primary",
           click: function () {
-            backToGrid(this);
-            // doCreateTask(this);
-            //   const _this = this;
-            //   const inputs = $$(prefix + "_form").getValues();
-            //   inputs.project_id = state.selId;
-            //   webix
-            //     .ajax()
-            //     .post(url, inputs, function (res) {
-            //       console.log("res", res);
-            //       webix.message({ text: `Task saved`, type: "success" });
-            //       _this.$scope.show("p.task?id=" + state.selId);
-            //     })
-            //     .fail(function (err) {
-            //       webix.message({
-            //         text: JSON.parse(err.responseText).data,
-            //         type: "error",
-            //       });
-            //     });
+            if (
+              state.routePath == "p.task.edit" &&
+              typeof state.selId != "undefined"
+            ) {
+              doUpdateTask(this.$scope, state.selId);
+            } else {
+              doCreateTask(this.$scope);
+            }
           },
         },
       ],
@@ -254,20 +267,32 @@ export default class TaskForm extends JetView {
   init(view) {}
   urlChange(_, url) {
     state.selId = url[0].params.id;
-    stateProject.selId = parseInt(url[0].params.project_id);
+
+    stateProject.selId = url[0].params.project_id;
   }
 
   ready(_, url) {
     state.selId = url[0].params.id;
+    stateProject.selId = url[0].params.project_id;
     state.routePath = url[0].page;
 
     let pageLabel = "";
     if (state.routePath == "p.task.add") {
       pageLabel = "Add";
-    } else if (state.routePath == "p.task.edit") {
+      $$(prefix + "form_photo_panel").show();
+    } else if (
+      state.routePath == "p.task.edit" &&
+      typeof state.selId != "undefined"
+    ) {
       pageLabel = "Edit";
+      $$(prefix + "form_photo_panel").hide();
+
+      getTaskById(state.selId).then((r) =>
+        this.$$(prefix + "_form").setValues(r)
+      );
     } else if (state.routePath == "p.task.editmore") {
       pageLabel = "Edit more";
+      $$(prefix + "form_photo_panel").show();
     }
     this.$$(prefix + "_navbar").setValue(pageLabel);
   }

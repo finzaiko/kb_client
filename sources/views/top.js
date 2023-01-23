@@ -43,22 +43,22 @@ export default class TopView extends JetView {
       // url: `${urlProject}`,
       on: {
         onItemClick: function (id, e, node) {
-          console.log("id0", id);
+
           // this.$scope.show("p.task?id=" + id);
           // this.$scope.show("p.task?id=" + id);
           // this.unselect(id);
           // if (id) {
             const item = this.getItem(id);
-          //   console.log('item.href', item.href)
-          this.$scope.show("/top/p.project?id=" + id);
+          //
+          this.$scope.show("/top/p.project?project_id=" + id);
           //   storeRole(item.role_access);
           //   asyncLocalStorage.setItem(JSON.stringify(item.role_access));
-          //   // asyncLocalStorage.setItem(JSON.stringify({c: false, d: false, r: true, u: true}));
+          //   // asyncLocalStorage.setItem(JSON.stringify({c: false, d: fsalse, r: true, u: true}));
 
           // }
         },
         onAfterSelect: function (id) {
-          console.log("id", id);
+
           // localStorage.setItem("msel", id);
         },
       },
@@ -92,16 +92,41 @@ export default class TopView extends JetView {
     webix.ui.fullScreen();
     // this.use(plugins.Menu, "app:myproject");
   }
-  ready() {
+  urlChange(_, url) {
+  }
+  ready(_, url) {
 
+    // state.selId = url;
+    // state.selId = url[0].params.id;
     getMyProject().then(r=>{
-      console.log('r>> ',r);
+
       this.$$("app:myproject").clearAll();
       this.$$("app:myproject").parse(r);
+      //
 
+      let a = url.find(p=>{
+
+
+
+        return p.params.project_id// || (p.page=="p.project" && p.params.id)
+      })
+
+      if(a) {
+
+        // state.selId = url[0].params.id || url[0].params.project_id;
+        state.selId = a.params.project_id;
+
+
+        this.$$("app:myproject").select(state.selId)
+
+      }
+
+      //
+
+      // setTimeout(() => $$("app:myproject").select(state.selId), 500);
     })
     webix.event(window, "resize", function (e) {
-      console.log("e", window.innerWidth);
+
 
       // $$("main_layout2").adjust()
     });
@@ -114,7 +139,7 @@ export default class TopView extends JetView {
     //   .post(`${API_URL}/user/profile`)
     //   .then((a) => {
     //     var b = a.json();
-    //     console.log("b", b);
+    //
     //   });
   }
 }

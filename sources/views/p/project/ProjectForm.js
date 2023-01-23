@@ -93,7 +93,7 @@ function save() {
   let formData = $$(prefix + "_form").getValues(),
     msgName = formData.project_name;
 
-  console.log("formData", formData);
+
 
   if (!state.isEdit) {
     webix

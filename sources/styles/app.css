@@ -152,10 +152,10 @@
 }
 
 
-.content {
+.photo_content {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .image .webix_template {
@@ -247,3 +247,24 @@ p#img_screenshot_empty {
 .capture_camera button span{
     color: orange !important;
 }
+
+.remove-file-icon{
+    text-shadow: 0 0 3px #fff;
+}
+
+.remove-file-icon:hover{
+    color: red;
+}
+
+.flash_hightlight_comment textarea{
+	background-color: #ffe08a;
+	animation: anim-blinker 1s steps(60, end), blink-caret .65s step-end;
+  }
+
+  @keyframes anim-blinker {
+	50% { opacity: 0; }
+  }
+
+  .nav_toolbar{
+    border-bottom: 1px solid #dadee0!important;
+  }

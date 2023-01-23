@@ -2,6 +2,7 @@ import { JetView } from "webix-jet";
 import { state, url } from "../../../models/Task";
 
 const prefix = state.prefix + "_attachscreen_";
+const prefixPage = state + "_page_";
 
 let video,
   canvas,
@@ -40,10 +41,10 @@ function checkCamera() {
   navigator.mediaDevices
     .enumerateDevices()
     .then(function (devices) {
-      console.log("device", devices);
+
     })
     .catch(function (err) {
-      console.log("err", err);
+
     });
 }
 
@@ -68,14 +69,18 @@ function captureCamera() {
   canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
   let imgDataUrl = canvas.toDataURL("image/jpeg");
   $$("form_photo").setValue(imgDataUrl);
+  $$(prefixPage + "file_view_panel").show();
+  $$(prefixPage + "file_attach_panel").show();
   // video.style.display = "none";
 }
 
 function stopCamera() {
-  const mediaStream = video.srcObject;
-  const tracks = mediaStream.getTracks();
-  if (tracks.length > 0) {
-    tracks[0].stop();
+  if (typeof video != "undefined") {
+    const mediaStream = video.srcObject;
+    const tracks = mediaStream.getTracks();
+    if (tracks.length > 0) {
+      tracks[0].stop();
+    }
   }
 }
 
@@ -144,14 +149,17 @@ function WindowForm() {
                         imgTmpl.style.backgroundPosition = "center";
                         imgTmpl.style.backgroundSize = "contain";
                         imgTmpl.style.width = "100%";
-                        imgTmpl.style.height= "100%";
+                        imgTmpl.style.height = "100%";
 
                         $$("form_photo").setValue(event.target.result);
+                        $$(winId).close();
+                        $$(prefixPage + "file_view_panel").show();
+                        $$(prefixPage + "file_attach_panel").show();
                       };
+                      state.fileNameUpload = Object.values(
+                        $$(prefix + "_open_uploader").files.data.pull
+                      )[0].name;
                       reader.readAsDataURL(file);
-
-                      // $$(prefix + "_open_uploader").hide();
-                      // $$(prefix + "_do_uploader").show();
                       return false;
                     },
                   },
@@ -263,58 +271,14 @@ function WindowForm() {
               document.getElementById("img_screenshot").src =
                 event.target.result;
               $$("form_photo").setValue(event.target.result);
+              $$(prefixPage + "file_view_panel").show();
+              $$(prefixPage + "file_attach_panel").show();
+              $$(winId).close();
             };
 
             reader.readAsDataURL(blob);
           }
         };
-
-        // document.addEventListener(
-        //   "dragover",
-        //   function (e) {
-        //     // prevent default to allow drop
-        //     e.preventDefault();
-        //   },
-        //   false
-        // );
-        // document.addEventListener("drop", function (e) {
-        //   // prevent default action (open as link for some elements)
-        //   // add event handler to canvas if desired instead of document
-        //   //debugger;
-        //   e.preventDefault();
-        //   let items = e.dataTransfer.items;
-        //   for (let i = 0; i < items.length; i++) {
-        //     if (items[i].type.indexOf("image") !== -1) {
-        //       //document.getElementById("instructions").style.visibility = "hidden";
-        //       //image
-        //       let blob = items[i].getAsFile();
-        //       let URLObj = window.URL || window.webkitURL;
-        //       let source = URLObj.createObjectURL(blob);
-        //       // console.log("source", source);
-        //       console.log('blob',blob);
-
-        //       BlobToBase64(URLObj, blob).then(r=>{
-        //         console.log('r',r);
-        //         $$("form_photo").setValue(r);
-        //       });
-
-        //       // _self.paste_createImage(source);
-        //     }
-        //   }
-        // });
-
-        // const canvasElementId = "my_canvas";
-        // let CLIPBOARD = new PhotoDropPaste.CLIPBOARD_CLASS(
-        //   canvasElementId,
-        //   true,
-        //   function () {
-        //     console.log("paste_auto finished");
-        //     const imgUrl = getImgAsString(canvasElementId)
-        //     console.log('imgUrl',imgUrl);
-        //     // $$("form_photo").setValue(imgUrl);
-
-        //   }
-        // );
       },
       onDestruct() {
         stopCamera();

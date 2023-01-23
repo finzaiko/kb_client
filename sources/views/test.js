@@ -24,7 +24,7 @@ function getMe() {
     })
     .post(API_URL, params)
     .then((r) => {
-      // console.log("r", r.json());
+      //
       return r.json().result;
     });
 }
@@ -46,7 +46,7 @@ function getColumnByProjectId(projectId) {
     })
     .post(API_URL, paramscol)
     .then((r) => {
-      // console.log("r", r.json());
+      //
       return r.json().result[0];
     });
 }
@@ -87,7 +87,7 @@ function createTask(projectId, colBoardId) {
     })
     .post(API_URL, params)
     .then((r) => {
-      console.log("r", r.json());
+
     });
 }
 
@@ -115,7 +115,7 @@ function createComment(taskId, userId, comment) {
 
 async function createComment2(taskId, comment) {
   const user = await getMe();
-  console.log("userId", user.id);
+
   createComment(taskId, user.id, comment);
 }
 
@@ -148,7 +148,7 @@ export default class TestView extends JetView {
           label: "Get ME",
           click: async function () {
             const a = await getMe();
-            console.log("a", a);
+
           },
         },
         {
@@ -169,7 +169,7 @@ export default class TestView extends JetView {
               })
               .post(API_URL, params)
               .then((r) => {
-                console.log("r", r.json());
+
               });
           },
         },
@@ -195,7 +195,7 @@ export default class TestView extends JetView {
               })
               .post(API_URL, params)
               .then((r) => {
-                console.log("r", r.json());
+
               });
           },
         },
@@ -219,7 +219,7 @@ export default class TestView extends JetView {
               })
               .post(API_URL, params)
               .then((r) => {
-                console.log("r", r.json());
+
               });
           },
         },
@@ -230,7 +230,7 @@ export default class TestView extends JetView {
             const projectId = 3;
 
             getColumnByProjectId(projectId).then((a) => {
-              console.log("a", a.id);
+
 
               createTask(projectId, a.id);
             });
@@ -250,7 +250,7 @@ export default class TestView extends JetView {
           click: async function () {
             const taskId = 6;
             const comm = await getComments(taskId);
-            console.log('comm',comm);
+
 
           },
         },

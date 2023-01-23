@@ -14,6 +14,7 @@ export default class ProjectPage extends JetView {
             {
               view: "button",
               label: "Create",
+              css: "webix_primary",
               autowidth: true,
               click: function () {
                 this.$scope.show("p.task.add?project_id=" + state.selId);
@@ -24,7 +25,7 @@ export default class ProjectPage extends JetView {
               placeholder: "Search..",
               value: "status:open",
               width: 400,
-            }
+            },
           ],
         },
         {
@@ -55,6 +56,8 @@ export default class ProjectPage extends JetView {
           ],
           on: {
             onItemClick: function (id) {
+
+              // return;
               this.$scope.show(
                 "/top/p.task?project_id=" + state.selId + "&id=" + id
               );
@@ -66,15 +69,18 @@ export default class ProjectPage extends JetView {
   }
   init(view) {}
   async urlChange(_, url) {
-    state.selId = parseInt(url[0].params.id);
+    state.selId = url[0].params.project_id;
     const tasks = await getMyTask(state.selId);
     this.$$(prefix + "table").clearAll();
     this.$$(prefix + "table").parse(tasks);
   }
   async ready(_, url) {
-    state.selId = parseInt(url[0].params.id);
+    state.selId = url[0].params.project_id;
     const tasks = await getMyTask(state.selId);
+
+
     this.$$(prefix + "table").clearAll();
     this.$$(prefix + "table").parse(tasks);
+    // setTimeout(() => $$("app:myproject").select(state.selId), 500);
   }
 }

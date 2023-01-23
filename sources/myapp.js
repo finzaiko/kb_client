@@ -20,8 +20,6 @@ webix.protoUI(
       },
     },
     $init(config) {
-      console.log('config',config);
-
       if (config.value) {
         this.$ready.push(function () {
           this.setValue(config.value);

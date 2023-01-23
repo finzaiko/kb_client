@@ -27,27 +27,29 @@ export function getMyProject() {
     })
     .post(API_URL, params)
     .then((r) => {
-      console.log("r", r.json());
       return r.json().result;
     });
 }
 
-// export function getColumnByProjectId(projectId) {
-//   const params = {
-//     jsonrpc: "2.0",
-//     method: "getColumns",
-//     id: 887036325,
-//     params: [projectId],
-//   };
+export function getProjectById(id) {
+  const params = {
+    jsonrpc: "2.0",
+    method: "getProjectById",
+    id: 226760253,
+    params: {
+      project_id: id,
+    },
+  };
 
-//   return webix
-//     .ajax()
-//     .headers({
-//       "Content-Type": "application/json",
-//       Authorization: `Basic ${encoded}`,
-//     })
-//     .post(API_URL, params)
-//     .then((r) => {
-//       return r.json().result[0];
-//     });
-// }
+  return webix
+    .ajax()
+    .headers({
+      "Content-Type": "application/json",
+      Authorization: `Basic ${getUserEncoded()}`,
+    })
+    .post(API_URL, params)
+    .then((r) => {
+
+      return r.json().result;
+    });
+}
