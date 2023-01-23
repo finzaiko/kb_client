@@ -12,3 +12,7 @@ export function getDateFormatted(unixTimeStamp) {
     ("0" + date.getMinutes()).slice(-2)
   );
 }
+
+export function getDatetoISOStr(unixTimeStamp) {
+  return new Date(unik * 1e3).toISOString();
+}

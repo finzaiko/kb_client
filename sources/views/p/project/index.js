@@ -1,4 +1,5 @@
 import { JetView } from "webix-jet";
+import { getDateFormatted } from "../../../helpers/ui";
 import { state } from "../../../models/Project";
 import { getMyTask } from "../../../models/Task";
 
@@ -44,19 +45,21 @@ export default class ProjectPage extends JetView {
               fillspace: true,
             },
             {
-              id: "creator_id",
+              id: "creator_name",
               header: ["Created by", { content: "textFilter" }],
               width: 100,
             },
             {
-              id: "date_modification",
-              header: ["Update at", { content: "textFilter" }],
-              width: 100,
+              id: "updated_at",
+              header: "Update at",
+              width: 150,
+              template: function (obj, common) {
+                return getDateFormatted(obj.date_modification);
+              },
             },
           ],
           on: {
             onItemClick: function (id) {
-
               // return;
               this.$scope.show(
                 "/top/p.task?project_id=" + state.selId + "&id=" + id
@@ -77,7 +80,6 @@ export default class ProjectPage extends JetView {
   async ready(_, url) {
     state.selId = url[0].params.project_id;
     const tasks = await getMyTask(state.selId);
-
 
     this.$$(prefix + "table").clearAll();
     this.$$(prefix + "table").parse(tasks);

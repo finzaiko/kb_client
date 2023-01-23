@@ -67,7 +67,7 @@ async function startCamera() {
 
 function captureCamera() {
   canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
-  let imgDataUrl = canvas.toDataURL("image/jpeg");
+  let imgDataUrl = canvas.toDataURL("image/png");
   $$("form_photo").setValue(imgDataUrl);
   $$(prefixPage + "file_view_panel").show();
   $$(prefixPage + "file_attach_panel").show();
