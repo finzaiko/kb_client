@@ -268,3 +268,27 @@ p#img_screenshot_empty {
   .nav_toolbar{
     border-bottom: 1px solid #dadee0!important;
   }
+
+  .task_item{
+    padding-top: 8px;
+    padding-bottom: 8px;
+    height: 35px;
+    overflow: hidden;
+  }
+
+  .task_item_title{
+    font-weight: 500;
+  }
+
+  .task_item_desc{
+    font-size: 12px;
+    color: rgb(163, 163, 163);
+  }
+
+  .comment_list_container{
+    background: yellow;
+  }
+
+  .comment_text_container{
+    background: #fff;
+  }

@@ -7,6 +7,7 @@ const prefix = state + "_page_";
 
 export default class ProjectPage extends JetView {
   config() {
+
     return {
       rows: [
         {
