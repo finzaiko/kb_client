@@ -1,11 +1,8 @@
 import { JetView, plugins } from "webix-jet";
-import { API_URL } from "../config/config";
-import { defaultHeader } from "../helpers/api";
-import { ProjectForm } from "./p/project/ProjectForm";
-import { getMyProject, state, url as urlProject } from "../models/Project";
+import { getMyProject, state } from "../models/Project";
 import { ProfileWindow } from "./profile";
 
-export default class TopView extends JetView {
+export default class AppView extends JetView {
   config() {
     const header = {
       view: "toolbar",
@@ -14,8 +11,7 @@ export default class TopView extends JetView {
         {
           view: "icon",
           icon: "mdi mdi-account-circle-outline",
-          click: function () {
-          },
+          click: function () {},
         },
         {
           view: "template",
@@ -43,14 +39,13 @@ export default class TopView extends JetView {
       // url: `${urlProject}`,
       on: {
         onItemClick: function (id, e, node) {
-
           // this.$scope.show("p.task?id=" + id);
           // this.$scope.show("p.task?id=" + id);
           // this.unselect(id);
           // if (id) {
-            const item = this.getItem(id);
+          const item = this.getItem(id);
           //
-          this.$scope.show("/top/p.project?project_id=" + id);
+          this.$scope.show("/app/p.project?project_id=" + id);
           //   storeRole(item.role_access);
           //   asyncLocalStorage.setItem(JSON.stringify(item.role_access));
           //   // asyncLocalStorage.setItem(JSON.stringify({c: false, d: fsalse, r: true, u: true}));
@@ -58,7 +53,6 @@ export default class TopView extends JetView {
           // }
         },
         onAfterSelect: function (id) {
-
           // localStorage.setItem("msel", id);
         },
       },
@@ -92,42 +86,31 @@ export default class TopView extends JetView {
     webix.ui.fullScreen();
     // this.use(plugins.Menu, "app:myproject");
   }
-  urlChange(_, url) {
-  }
+  urlChange(_, url) {}
   ready(_, url) {
-
     // state.selId = url;
     // state.selId = url[0].params.id;
-    getMyProject().then(r=>{
-
+    getMyProject().then((r) => {
       this.$$("app:myproject").clearAll();
       this.$$("app:myproject").parse(r);
       //
 
-      let a = url.find(p=>{
+      let a = url.find((p) => {
+        return p.params.project_id; // || (p.page=="p.project" && p.params.id)
+      });
 
-
-
-        return p.params.project_id// || (p.page=="p.project" && p.params.id)
-      })
-
-      if(a) {
-
+      if (a) {
         // state.selId = url[0].params.id || url[0].params.project_id;
         state.selId = a.params.project_id;
 
-
-        this.$$("app:myproject").select(state.selId)
-
+        this.$$("app:myproject").select(state.selId);
       }
 
       //
 
       // setTimeout(() => $$("app:myproject").select(state.selId), 500);
-    })
+    });
     webix.event(window, "resize", function (e) {
-
-
       // $$("main_layout2").adjust()
     });
 

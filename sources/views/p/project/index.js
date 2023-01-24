@@ -62,7 +62,7 @@ export default class ProjectPage extends JetView {
             onItemClick: function (id) {
               // return;
               this.$scope.show(
-                "/top/p.task?project_id=" + state.selId + "&id=" + id
+                "/app/p.task?project_id=" + state.selId + "&id=" + id
               );
             },
           },
