@@ -1,5 +1,5 @@
 import { JetView } from "webix-jet";
-import { getMyTask, getTaskById, state } from "../../../models/Task";
+import { getFileByTaskId, getMyTask, getTaskById, imgTemplate, state, uploadByTaskId } from "../../../models/Task";
 import { getProjectById, state as stateProject } from "../../../models/Project";
 import { BACKEND_URL } from "../../../config/config";
 import { getDateFormatted } from "../../../helpers/ui";
@@ -10,16 +10,71 @@ import {
   state as stateComment,
   updateComment,
 } from "../../../models/Comment";
+import { TaskAttachScreenshot } from "./TaskAttachScreenshot";
+import { TaskPhotoPreview } from "./TaskPhotoPreview";
 
-const prefix = state.prefix + "_";
+const prefix = state.prefix + "_detail_";
+const prefixAttach = state.prefix + "_attachscreen_";
 
 function backToGrid(_this) {
-  // const backRoute =
-  //   state.routePath == "m.task.add"
-  //     ? `m.project?project_id=${stateProject.selId}`
-  //     : `m.task?project_id=${stateProject.selId}&id=${state.selId}`;
   const backRoute = `m.task?project_id=${stateProject.selId}`;
   _this.show(backRoute);
+}
+
+
+async function loadFiles() {
+  const images = await getFileByTaskId(state.selId);
+  const fileId = $$(prefix + "file_view");
+  if (images.length > 0) {
+    $$(prefix + "file_view_empty").hide();
+    $$(prefix + "file_view_panel").show();
+    $$(prefix + "file_view").show();
+    fileId.clearAll();
+    fileId.parse(images);
+    state.images = images;
+    var viewsArray = [];
+    for (var i = 0; i < images.length; i++) {
+      viewsArray.push({
+        id: images[i].id,
+        css: "image",
+        template: imgTemplate,
+        data: webix.copy(images[i]),
+      });
+    }
+
+    state.imageView = viewsArray;
+  } else {
+    $$(prefix + "file_view_empty").show();
+    $$(prefix + "file_view_panel").hide();
+    $$(prefix + "file_view").hide();
+  }
+  return null;
+}
+
+
+function clearComments() {
+  $$(prefix + "comment_text").setValue();
+  stateComment.dataSelected = {};
+}
+
+function removeCommentById(selId) {
+  webix.confirm({
+    ok: "Yes",
+    cancel: "No",
+    text: "Are you sure to delete ?",
+    callback: function (result) {
+      if (result) {
+        removeComment(selId).then((_) => {
+          webix.message({
+            text: "Comment deleted",
+            type: "success",
+          });
+          loadComments();
+          clearComments();
+        });
+      }
+    },
+  });
 }
 
 
@@ -110,7 +165,7 @@ export default class TaskDetailMobile extends JetView {
               autowidth: true,
               type: "icon",
               icon: "mdi mdi-attachment",
-              tooltip: "Copy paste from Screenshot",
+              tooltip: "Attachement",
               css: { "padding-right": "10px" },
               click: function () {
                 this.$scope.ui(TaskAttachScreenshot).show();
@@ -323,14 +378,19 @@ export default class TaskDetailMobile extends JetView {
     };
   }
   init(view) {}
-  urlChange(_, url) {
-    state.selId = url[0].params.id;
+  urlChange(view, url) {
     stateProject.selId = url[0].params.project_id;
+    state.selId = url[0].params.id;
+    state.attachOpen = url[0].params.attach || 0;
+    if(state.attachOpen && !$$(prefixAttach + "win")){
+      view.$scope.ui(TaskAttachScreenshot).show();
+    }
   }
 
   async ready(view, url) {
-    state.selId = url[0].params.id;
     stateProject.selId = url[0].params.project_id;
+    state.selId = url[0].params.id;
+    state.attachOpen = url[0].params.attach || 0;
 
     const task = await getTaskById(state.selId);
     const taskViewId = $$(prefix + "task_view");
@@ -340,14 +400,10 @@ export default class TaskDetailMobile extends JetView {
 
     await loadComments();
 
-    // const tasks = await getMyTask(stateProject.selId);
+    await loadFiles();
 
-    // this.$$(prefix + "table").clearAll();
-    // this.$$(prefix + "table").parse(tasks);
-
-    // const projects = await getMyProject();
-    // const projectTblId = $$(prefix + "table");
-    // projectTblId.clearAll();
-    // projectTblId.parse(projects);
+    if(state.attachOpen && !$$(prefixAttach + "win")){
+      view.$scope.ui(TaskAttachScreenshot).show();
+    }
   }
 }

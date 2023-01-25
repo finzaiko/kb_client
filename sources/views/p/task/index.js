@@ -22,7 +22,7 @@ import { userProfile } from "../../../models/UserProfile";
 import { TaskPhotoPreview } from "./TaskPhotoPreview";
 import { TaskAttachScreenshot } from "./TaskAttachScreenshot";
 
-const prefix = state + "_page_";
+const prefix = state.prefix + "_page_";
 
 async function loadComments() {
   const comments = await getAllComment(state.selId);
@@ -188,7 +188,7 @@ export default class TaskPage extends JetView {
               autowidth: true,
               type: "icon",
               icon: "mdi mdi-attachment",
-              tooltip: "Copy paste from Screenshot",
+              tooltip: "Attachment",
               css: { "padding-right": "10px" },
               click: function () {
                 this.$scope.ui(TaskAttachScreenshot).show();

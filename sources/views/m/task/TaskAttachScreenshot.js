@@ -2,7 +2,9 @@ import { JetView } from "webix-jet";
 import { state, url } from "../../../models/Task";
 
 const prefix = state.prefix + "_attachscreen_";
-const prefixPage = state.prefix + "_page_";
+const prefixPage = state.prefix + "_detail_";
+import { state as stateProject } from "../../../models/Project";
+import { removeURLParam, updateURLParam } from "../../../helpers/url";
 
 let video,
   canvas,
@@ -40,12 +42,8 @@ const BlobToBase64 = function (urlObj, blob) {
 function checkCamera() {
   navigator.mediaDevices
     .enumerateDevices()
-    .then(function (devices) {
-
-    })
-    .catch(function (err) {
-
-    });
+    .then(function (devices) {})
+    .catch(function (err) {});
 }
 
 function flipCamera() {
@@ -279,8 +277,13 @@ function WindowForm() {
             reader.readAsDataURL(blob);
           }
         };
+
+        const newUrl = updateURLParam(window.location.href, "attach", "1");
+        window.history.replaceState("", "", newUrl);
       },
       onDestruct() {
+        const oldUrl = removeURLParam("attach", window.location.href);
+        window.history.replaceState("", "", oldUrl);
         stopCamera();
       },
     },
@@ -295,5 +298,9 @@ export class TaskAttachScreenshot extends JetView {
     this.getRoot().show(target);
   }
   init(view) {}
-  ready(view) {}
+  ready(view) {
+    // view.show(
+    //   `m.task.edit?project_id=${stateProject.selId}&id=${state.selId}&attach=1`
+    // );
+  }
 }

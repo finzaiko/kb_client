@@ -137,10 +137,15 @@
 }
 
 .action-icon {
-    float: right;
+    position: absolute;
+    bottom: 0;
+    right: 6px;
 }
 
-.remove-icon:hover,
+.remove-icon:hover {
+    color: rgb(255, 79, 79);
+    cursor: pointer;
+}
 .update-icon:hover {
     color: #888;
     cursor: pointer;
@@ -187,13 +192,15 @@
 }
 
 .comment_list_panel {
-    background: #E5E5EA;
+    background: #f0f2f5;
     padding: 10px;
     margin-top: 10px;
+    position: relative;
 }
 
+
 .comment_list_panel:hover {
-    background: #a9efff;
+    background: #caf5ff;
 }
 
 .task_view_template {
@@ -244,51 +251,54 @@ p#img_screenshot_empty {
     padding-left: 10px;
     padding-right: 10px;
 }
-.capture_camera button span{
+
+.capture_camera button span {
     color: orange !important;
 }
 
-.remove-file-icon{
+.remove-file-icon {
     text-shadow: 0 0 3px #fff;
 }
 
-.remove-file-icon:hover{
+.remove-file-icon:hover {
     color: red;
 }
 
-.flash_hightlight_comment textarea{
-	background-color: #ffe08a;
-	animation: anim-blinker 1s steps(60, end), blink-caret .65s step-end;
-  }
+.flash_hightlight_comment textarea {
+    background-color: #ffe08a;
+    animation: anim-blinker 1s steps(60, end), blink-caret .65s step-end;
+}
 
-  @keyframes anim-blinker {
-	50% { opacity: 0; }
-  }
+@keyframes anim-blinker {
+    50% {
+        opacity: 0;
+    }
+}
 
-  .nav_toolbar{
-    border-bottom: 1px solid #dadee0!important;
-  }
+.nav_toolbar {
+    border-bottom: 1px solid #dadee0 !important;
+}
 
-  .task_item{
+.task_item {
     padding-top: 8px;
     padding-bottom: 8px;
     height: 35px;
     overflow: hidden;
-  }
+}
 
-  .task_item_title{
+.task_item_title {
     font-weight: 500;
-  }
+}
 
-  .task_item_desc{
+.task_item_desc {
     font-size: 12px;
     color: rgb(163, 163, 163);
-  }
+}
 
-  .comment_list_container{
+.comment_list_container {
     background: yellow;
-  }
+}
 
-  .comment_text_container{
+.comment_text_container {
     background: #fff;
-  }
+}

@@ -14,6 +14,7 @@ export let state = {
   images: [],
   imageView: [],
   fileNameUpload: "",
+  attachOpen: 0,
 };
 
 export let url = `${API_URL}/${path}`;
