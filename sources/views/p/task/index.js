@@ -288,38 +288,6 @@ export default class TaskPage extends JetView {
           css: { background: "#fff" },
         },
         {
-          id: prefix + "comment_list",
-          view: "template",
-          css: "comment_list",
-          scroll: "y",
-          onClick: {
-            "update-icon": function (e, id, node) {
-              const selId = parseInt(node.dataset.comment_id);
-              const item = stateComment.dataComments.find((e) => e.id == selId);
-              stateComment.dataSelected = item;
-              const commentTxtId = $$(prefix + "comment_text");
-              commentTxtId.setValue(item.comment);
-              commentTxtId.focus();
-              $$(prefix + "cancel_edit_comment").show();
-
-              webix.html.addCss(
-                commentTxtId.getNode(),
-                "flash_hightlight_comment"
-              );
-              setTimeout(() => {
-                webix.html.removeCss(
-                  commentTxtId.$view,
-                  "flash_hightlight_comment"
-                );
-              }, 1000);
-            },
-            "remove-icon": function (e, id, node) {
-              const selId = parseInt(node.dataset.comment_id);
-              removeCommentById(selId);
-            },
-          },
-        },
-        {
           padding: 10,
           css: { background: "#fff" },
           rows: [
@@ -327,6 +295,7 @@ export default class TaskPage extends JetView {
               view: "textarea",
               id: prefix + "comment_text",
               height: 100,
+              css: "testx"
             },
             {
               cols: [
@@ -389,6 +358,38 @@ export default class TaskPage extends JetView {
             { height: 20 },
           ],
         },
+        {
+          id: prefix + "comment_list",
+          view: "template",
+          css: "comment_list",
+          scroll: "y",
+          onClick: {
+            "update-icon": function (e, id, node) {
+              const selId = parseInt(node.dataset.comment_id);
+              const item = stateComment.dataComments.find((e) => e.id == selId);
+              stateComment.dataSelected = item;
+              const commentTxtId = $$(prefix + "comment_text");
+              commentTxtId.setValue(item.comment);
+              commentTxtId.focus();
+              $$(prefix + "cancel_edit_comment").show();
+
+              webix.html.addCss(
+                commentTxtId.getNode(),
+                "flash_hightlight_comment"
+              );
+              setTimeout(() => {
+                webix.html.removeCss(
+                  commentTxtId.$view,
+                  "flash_hightlight_comment"
+                );
+              }, 1000);
+            },
+            "remove-icon": function (e, id, node) {
+              const selId = parseInt(node.dataset.comment_id);
+              removeCommentById(selId);
+            },
+          },
+        },
       ],
     };
   }
@@ -399,7 +400,6 @@ export default class TaskPage extends JetView {
   async ready(_, url) {
     state.selId = url[0].params.id;
     stateProject.selId = url[0].params.project_id;
-    // setTimeout(() => $$("app:myproject").select(stateProject.selId), 500);
     const project = await getProjectById(stateProject.selId);
     const task = await getTaskById(state.selId);
     const taskViewId = this.$$(prefix + "task_view");

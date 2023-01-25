@@ -1,5 +1,5 @@
 import { JetView } from "webix-jet";
-import { getFileByTaskId, getMyTask, getTaskById, imgTemplate, state, uploadByTaskId } from "../../../models/Task";
+import { getFileByTaskId, getMyTask, getTaskById, imgTemplate, removeFile, state, uploadByTaskId } from "../../../models/Task";
 import { getProjectById, state as stateProject } from "../../../models/Project";
 import { BACKEND_URL } from "../../../config/config";
 import { getDateFormatted } from "../../../helpers/ui";
@@ -19,6 +19,26 @@ const prefixAttach = state.prefix + "_attachscreen_";
 function backToGrid(_this) {
   const backRoute = `m.task?project_id=${stateProject.selId}`;
   _this.show(backRoute);
+}
+
+
+function removeFileById(selId) {
+  webix.confirm({
+    ok: "Yes",
+    cancel: "No",
+    text: "Are you sure to delete ?",
+    callback: function (result) {
+      if (result) {
+        removeFile(selId).then((_) => {
+          webix.message({
+            text: "File deleted",
+            type: "success",
+          });
+          loadFiles().then((_) => {});
+        });
+      }
+    },
+  });
 }
 
 
