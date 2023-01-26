@@ -1,0 +1,6 @@
+{
+  "appId": "com.finzaiko.zboard",
+  "appName": "zboard",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}

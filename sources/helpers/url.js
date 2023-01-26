@@ -51,3 +51,5 @@ export function removeURLParam(key, sourceURL) {
   }
   return rtn;
 }
+
+export const getScreenSize = () => (document.body.offsetWidth > 700 ? "wide" : "small");

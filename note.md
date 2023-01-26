@@ -1,7 +1,14 @@
 # Note
 
 ### Test build frontend
+```
 npm run buildconf --endpoint=http://abc.com
+```
+
+### Build sync capasitor
+```
+npx cap sync
+```
 
 ### Build docker
 ```

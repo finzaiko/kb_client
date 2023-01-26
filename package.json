@@ -24,6 +24,7 @@
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.16.0",
     "@babel/preset-env": "^7.16.0",
+    "@capacitor/cli": "^4.6.2",
     "babel-loader": "^8.2.3",
     "css-loader": "^6.5.0",
     "eslint": "^8.1.0",
@@ -38,6 +39,8 @@
     "webpack-dev-server": "^4.4.0"
   },
   "dependencies": {
+    "@capacitor/android": "^4.6.2",
+    "@capacitor/core": "^4.6.2",
     "@mdi/font": "^7.1.96",
     "webix": "^10.0.1",
     "webix-jet": "^2.1.3"

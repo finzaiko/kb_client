@@ -146,6 +146,7 @@
     color: rgb(255, 79, 79);
     cursor: pointer;
 }
+
 .update-icon:hover {
     color: #888;
     cursor: pointer;
@@ -176,6 +177,10 @@
     background-color: #eee;
 }
 
+.comment_list {
+    border-width: 0 !important;
+}
+
 .comment_list .webix_cell {
     line-height: 24px !important;
     /* padding: 10px; */
@@ -195,6 +200,7 @@
     background: #f0f2f5;
     padding: 10px;
     margin-top: 10px;
+    margin-bottom: 26px;
     position: relative;
 }
 
@@ -301,4 +307,70 @@ p#img_screenshot_empty {
 
 .comment_text_container {
     background: #fff;
+}
+
+/*
+.attach_section{
+    width: 100%;
+    border-bottom: 1px solid rgb(218, 218, 218);
+    line-height: 0.1em;
+    margin: 10px 0 20px;
+}
+
+.attach_section span{
+    background:#fff;
+    padding:0 10px;
+} */
+
+.attach_section {
+    /* background: yellow; */
+}
+
+.mdi_fontsize_20 .webix_icon {
+    font-size: 25px;
+}
+
+.attach_section_label,
+.comment_section_label {
+    padding-top: 10px;
+}
+
+.attach_section_icon,
+.comment_section_icon {
+    margin-top: 1px;
+
+}
+
+.attach_section_line,
+.comment_section_line {
+    padding-top: 10px;
+}
+
+.attach_section_line hr,
+.comment_section_line hr {
+    background-color: rgb(211, 211, 211);
+    height: 1px;
+    border: 0;
+}
+
+.file_view_dataview {
+    border-width: 0 !important;
+}
+
+.comment_textarea_panel {
+    padding: 0 10px;
+}
+
+.comment_textarea {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+    border: 1px solid #CCD7E6;
+}
+
+.autosize {
+    height: 40px;
+    resize: none;
+    overflow: auto;
+    max-height: 150px;
 }

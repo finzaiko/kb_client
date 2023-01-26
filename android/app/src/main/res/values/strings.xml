@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">zboard</string>
+    <string name="title_activity_main">zboard</string>
+    <string name="package_name">com.finzaiko.zboard</string>
+    <string name="custom_url_scheme">com.finzaiko.zboard</string>
+</resources>

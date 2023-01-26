@@ -101,7 +101,7 @@ module.exports = function(env) {
 	replace({
 		regex: /[?][0-9]+/g,
 		replacement: `?${build}`,
-		paths: ["./build/index.html"],
+		paths: ["./docker-config/index.html"],
 		recursive: true,
 		silent: true
 	});

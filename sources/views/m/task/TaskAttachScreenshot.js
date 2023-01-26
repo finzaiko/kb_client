@@ -4,7 +4,11 @@ import { state, url } from "../../../models/Task";
 const prefix = state.prefix + "_attachscreen_";
 const prefixPage = state.prefix + "_detail_";
 import { state as stateProject } from "../../../models/Project";
-import { removeURLParam, updateURLParam } from "../../../helpers/url";
+import {
+  getScreenSize,
+  removeURLParam,
+  updateURLParam,
+} from "../../../helpers/url";
 
 let video,
   canvas,
@@ -56,11 +60,19 @@ async function startCamera() {
   // checkCamera();
   video = document.querySelector("#video");
   canvas = document.querySelector("#camera_canvas");
-  let stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: cameraFront ? "user" : "environment" },
-    audio: false,
-  });
-  video.srcObject = stream;
+  if (navigator.mediaDevices) {
+    let stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: cameraFront ? "user" : "environment" },
+      audio: false,
+    });
+    video.srcObject = stream;
+  } else {
+    webix.alert({
+      type: "alert-error",
+      title: "Camera",
+      text: "Camera can not open, mediaDevices not detect",
+    });
+  }
 }
 
 function captureCamera() {
@@ -69,15 +81,17 @@ function captureCamera() {
   $$("form_photo").setValue(imgDataUrl);
   $$(prefixPage + "file_view_panel").show();
   $$(prefixPage + "file_attach_panel").show();
-  // video.style.display = "none";
 }
 
 function stopCamera() {
   if (typeof video != "undefined") {
     const mediaStream = video.srcObject;
-    const tracks = mediaStream.getTracks();
-    if (tracks.length > 0) {
-      tracks[0].stop();
+    console.log("mediaStream", mediaStream);
+    if (mediaStream) {
+      const tracks = mediaStream.getTracks();
+      if (tracks.length > 0) {
+        tracks[0].stop();
+      }
     }
   }
 }
@@ -92,6 +106,7 @@ function WindowForm() {
     id: winId,
     width: 500,
     height: 400,
+    fullscreen: getScreenSize() == "small" ? true : false,
     head: {
       view: "toolbar",
       cols: [

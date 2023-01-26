@@ -1,5 +1,13 @@
 import { JetView } from "webix-jet";
-import { getFileByTaskId, getMyTask, getTaskById, imgTemplate, removeFile, state, uploadByTaskId } from "../../../models/Task";
+import {
+  getFileByTaskId,
+  getMyTask,
+  getTaskById,
+  imgTemplate,
+  removeFile,
+  state,
+  uploadByTaskId,
+} from "../../../models/Task";
 import { getProjectById, state as stateProject } from "../../../models/Project";
 import { BACKEND_URL } from "../../../config/config";
 import { getDateFormatted } from "../../../helpers/ui";
@@ -12,6 +20,7 @@ import {
 } from "../../../models/Comment";
 import { TaskAttachScreenshot } from "./TaskAttachScreenshot";
 import { TaskPhotoPreview } from "./TaskPhotoPreview";
+import { userProfile } from "../../../models/UserProfile";
 
 const prefix = state.prefix + "_detail_";
 const prefixAttach = state.prefix + "_attachscreen_";
@@ -20,7 +29,6 @@ function backToGrid(_this) {
   const backRoute = `m.task?project_id=${stateProject.selId}`;
   _this.show(backRoute);
 }
-
 
 function removeFileById(selId) {
   webix.confirm({
@@ -40,7 +48,6 @@ function removeFileById(selId) {
     },
   });
 }
-
 
 async function loadFiles() {
   const images = await getFileByTaskId(state.selId);
@@ -71,9 +78,13 @@ async function loadFiles() {
   return null;
 }
 
-
 function clearComments() {
-  $$(prefix + "comment_text").setValue();
+  const commentViewId = $$(prefix + "comment_view_panel");
+  const commentEd = commentViewId.getNode().querySelector("textarea");
+  commentEd.value = "";
+  $$(prefix + "comment_submit_panel").hide();
+  commentEd.style.height = "40px";
+  commentViewId.refresh();
   stateComment.dataSelected = {};
 }
 
@@ -96,7 +107,6 @@ function removeCommentById(selId) {
     },
   });
 }
-
 
 async function loadComments() {
   const comments = await getAllComment(state.selId);
@@ -124,7 +134,7 @@ async function loadComments() {
     </div>`;
   });
   commentListId.setHTML(outputHtml);
-  commentListId.scrollTo(0, 1000);
+  setTimeout(() => commentListId.scrollTo(0, 1000), 300);
 }
 
 export default class TaskDetailMobile extends JetView {
@@ -195,6 +205,37 @@ export default class TaskDetailMobile extends JetView {
           ],
         },
         {
+          height: 35,
+          css: "attach_section",
+          cols: [
+            { width: 10 },
+            {
+              type: "clean",
+              css: "attach_section_label",
+              template: "Attachement",
+              width: 90,
+            },
+            {
+              type: "clean",
+              view: "template",
+              css: "attach_section_line",
+              // template: `<div class='attach_section'><span>Attachment</span></div>`,
+              template: "<hr>",
+              onClick: {
+                attach_section: function () {
+                  console.log("aa");
+                },
+              },
+            },
+            {
+              view: "icon",
+              css: "mdi_fontsize_20 attach_section_icon",
+              icon: "mdi mdi-menu-down",
+            },
+            { width: 10 },
+          ],
+        },
+        {
           id: prefix + "file_view_panel",
           height: 100,
           hidden: true,
@@ -252,6 +293,7 @@ export default class TaskDetailMobile extends JetView {
             {
               view: "dataview",
               id: prefix + "file_view",
+              css: "file_view_dataview",
               height: 100,
               xCount: 4,
               select: true,
@@ -280,21 +322,51 @@ export default class TaskDetailMobile extends JetView {
         },
         // end view_file_panel
         {
-          view: "template",
-          template: "Comments",
-          type: "section",
-          css: { background: "#fff" },
+          height: 35,
+          css: "comment_section",
+          cols: [
+            { width: 10 },
+            {
+              type: "clean",
+              css: "comment_section_label",
+              template: "Comments",
+              width: 90,
+            },
+            {
+              type: "clean",
+              view: "template",
+              css: "comment_section_line",
+              // template: `<div class='attach_section'><span>Attachment</span></div>`,
+              template: "<hr>",
+              onClick: {
+                attach_section: function () {
+                  console.log("aa");
+                },
+              },
+            },
+            {
+              view: "icon",
+              css: "mdi_fontsize_20 comment_section_icon",
+              icon: "mdi mdi-menu-down",
+            },
+            { width: 10 },
+          ],
         },
-        // end template section comment
+        {
+          view: "template",
+          type: "clean",
+          autoheight: true,
+          id: prefix + "comment_view_panel",
+          template: function (obj) {
+            return `<div class='comment_textarea_panel'><textarea class="autosize comment_textarea" placeholder="Type here.."></textarea></div>`;
+          },
+        },
         {
           padding: 10,
           css: { background: "#fff" },
+          id: prefix + "comment_submit_panel",
+          hidden: true,
           rows: [
-            {
-              view: "textarea",
-              id: prefix + "comment_text",
-              height: 100,
-            },
             {
               cols: [
                 {
@@ -303,16 +375,18 @@ export default class TaskDetailMobile extends JetView {
                   autowidth: true,
                   css: "webix_primary",
                   click: function () {
-                    const commentViewId = $$(prefix + "comment_list");
+                    const commentViewId = $$(
+                      prefix + "comment_view_panel"
+                    ).getNode();
+                    const commentValue =
+                      commentViewId.querySelector("textarea").value;
+
                     const obj = stateComment.dataSelected;
                     if (
                       Object.keys(obj).length !== 0 &&
                       obj.constructor === Object
                     ) {
-                      updateComment(
-                        obj.id,
-                        $$(prefix + "comment_text").getValue()
-                      ).then((_) => {
+                      updateComment(obj.id, commentValue).then((_) => {
                         webix.message({
                           text: "Comment updated",
                           type: "success",
@@ -325,7 +399,7 @@ export default class TaskDetailMobile extends JetView {
                       createComment(
                         state.selId,
                         userProfile.userId,
-                        $$(prefix + "comment_text").getValue()
+                        commentValue
                       ).then((r) => {
                         webix.message({
                           text: "Comment saved",
@@ -346,14 +420,17 @@ export default class TaskDetailMobile extends JetView {
                   autowidth: true,
                   click: function () {
                     stateComment.dataSelected = {};
-                    $$(prefix + "comment_text").setValue();
+                    const commentViewId = $$(
+                      prefix + "comment_view_panel"
+                    ).getNode();
+                    commentViewId.querySelector("textarea").value = "";
                     this.hide();
                   },
                 },
                 {},
               ],
             },
-            { height: 20 },
+            // { height: 20 },
           ],
         },
         // end comment text
@@ -367,20 +444,14 @@ export default class TaskDetailMobile extends JetView {
               const selId = parseInt(node.dataset.comment_id);
               const item = stateComment.dataComments.find((e) => e.id == selId);
               stateComment.dataSelected = item;
-              const commentTxtId = $$(prefix + "comment_text");
-              commentTxtId.setValue(item.comment);
-              commentTxtId.focus();
+              const commentViewId = $$(prefix + "comment_view_panel").getNode();
+              const commentEd = commentViewId.querySelector("textarea");
+              commentEd.value = item.comment;
+              commentEd.focus();
               $$(prefix + "cancel_edit_comment").show();
-
-              webix.html.addCss(
-                commentTxtId.getNode(),
-                "flash_hightlight_comment"
-              );
+              commentViewId.classList.add("flash_hightlight_comment");
               setTimeout(() => {
-                webix.html.removeCss(
-                  commentTxtId.$view,
-                  "flash_hightlight_comment"
-                );
+                commentViewId.classList.remove("flash_hightlight_comment");
               }, 1000);
             },
             "remove-icon": function (e, id, node) {
@@ -402,7 +473,7 @@ export default class TaskDetailMobile extends JetView {
     stateProject.selId = url[0].params.project_id;
     state.selId = url[0].params.id;
     state.attachOpen = url[0].params.attach || 0;
-    if(state.attachOpen && !$$(prefixAttach + "win")){
+    if (state.attachOpen && !$$(prefixAttach + "win")) {
       view.$scope.ui(TaskAttachScreenshot).show();
     }
   }
@@ -422,8 +493,30 @@ export default class TaskDetailMobile extends JetView {
 
     await loadFiles();
 
-    if(state.attachOpen && !$$(prefixAttach + "win")){
+    if (state.attachOpen && !$$(prefixAttach + "win")) {
       view.$scope.ui(TaskAttachScreenshot).show();
     }
+
+    // auto resize comment text
+    const element = document.querySelector(".autosize");
+    element.addEventListener("input", () => {
+      element.style.height = "40px";
+      if (element.clientHeight < element.scrollHeight) {
+        element.style.height = element.scrollHeight + "px";
+        const commentPnlId = $$(prefix + "comment_view_panel");
+        commentPnlId.config.height = element.scrollHeight;
+        commentPnlId.resize();
+      }
+    });
+
+    const commentViewId = $$(prefix + "comment_view_panel").getNode();
+    const commentEd = commentViewId.querySelector("textarea");
+    commentEd.addEventListener("keyup", function (e) {
+      if (e.target.value.trim().length > 0) {
+        $$(prefix + "comment_submit_panel").show();
+      } else {
+        $$(prefix + "comment_submit_panel").hide();
+      }
+    });
   }
 }
