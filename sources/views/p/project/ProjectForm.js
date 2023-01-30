@@ -93,6 +93,8 @@ function save() {
   let formData = $$(prefix + "_form").getValues(),
     msgName = formData.project_name;
 
+    webix.extend($$(prefix + "_form"), webix.ProgressBar);
+    $$(prefix + "_form").showProgress();
 
 
   if (!state.isEdit) {
@@ -101,6 +103,7 @@ function save() {
       .post(url, formData, function (res) {
         webix.message({ text: `<b>${msgName}</b> saved.` });
         reload();
+        $$(prefix + "_form").hideProgress();
       })
       .fail(function (err) {
         showError(err);

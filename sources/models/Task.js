@@ -35,7 +35,7 @@ export function getColumnByProjectId(projectId) {
     })
     .post(API_URL, paramscol)
     .then((r) => {
-      return r.json().result[0];
+      return r.json().result;
     });
 }
 
@@ -99,6 +99,28 @@ export function updateTask(id, title, description) {
     });
 }
 
+export function deleteTask(id) {
+  const params = {
+    jsonrpc: "2.0",
+    method: "removeTask",
+    id: 1423501287,
+    params: {
+      task_id: id,
+    },
+  };
+
+  return webix
+    .ajax()
+    .headers({
+      "Content-Type": "application/json",
+      Authorization: `Basic ${getUserEncoded()}`,
+    })
+    .post(API_URL, params)
+    .then((r) => {
+      return r.json().result;
+    });
+}
+
 export function getMyTask(projectId) {
   const params = {
     jsonrpc: "2.0",
@@ -118,7 +140,6 @@ export function getMyTask(projectId) {
     })
     .post(API_URL, params)
     .then((r) => {
-
       return r.json().result;
     });
 }
@@ -141,7 +162,6 @@ export function getTaskById(taskId) {
     })
     .post(API_URL, params)
     .then((r) => {
-
       return r.json().result;
     });
 }
@@ -164,7 +184,6 @@ export function getFileByTaskId(taskId) {
     })
     .post(API_URL, params)
     .then((r) => {
-
       return r.json().result;
     });
 }
@@ -185,7 +204,6 @@ export function uploadByTaskId(projectId, taskId, fileName, fileBase64) {
     })
     .post(API_URL, params)
     .then((r) => {
-
       return r.json().result;
     });
 }
@@ -206,7 +224,6 @@ export function removeFile(taskId) {
     })
     .post(API_URL, params)
     .then((r) => {
-
       return r.json().result;
     });
 }

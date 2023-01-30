@@ -3,10 +3,8 @@ export default {
 	<h4>TODO:</h4>
 	<ul>
 		<li>login mobile view</li>
-		<li>theme navbar</li>
-		<li>setting page</li>
-		<li>report page temp</li>
-		<li>async loading</li>
+		<li>desktop layout w=1440</li>
+		<li>filter, refresh</li>
 	</ul>
 	`,
 };

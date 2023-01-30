@@ -18,3 +18,11 @@ export function setAppHeader(headers) {
 //     return null;
 //   }
 // };
+
+// export const mergeByKey = (array1, array1Key, array2, array2Key) =>
+export const mergeByKey = (array1, array2) =>
+  array1.map((itm) => ({
+    ...array2.find((item) => item.id === itm.column_id && item),
+    // ...array2.find((item) => item[array2Key] === itm[array1Key] && item),
+    ...itm,
+  }));

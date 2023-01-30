@@ -8,6 +8,7 @@ export let state = {
   isEdit: false,
   dataSelected: {},
   selId: null,
+  scope: {}
 };
 
 export let url = `${API_URL}/${path}`;
@@ -25,9 +26,18 @@ export function getMyProject() {
       "Content-Type": "application/json",
       Authorization: `Basic ${getUserEncoded()}`,
     })
+
     .post(API_URL, params)
     .then((r) => {
       return r.json().result;
+    })
+    .fail((err) => {
+      console.log('err',err);
+      // webix.alert({
+      //   type: "alert-error",
+      //   title: "Camera",
+      //   text: "Camera can not open, mediaDevices not detect",
+      // });
     });
 }
 
@@ -49,7 +59,6 @@ export function getProjectById(id) {
     })
     .post(API_URL, params)
     .then((r) => {
-
       return r.json().result;
     });
 }

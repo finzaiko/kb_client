@@ -1,6 +1,21 @@
-import { API_URL, AUTH_USER, COOKIE_NAME } from "../config/config";
+import { API_URL, AUTH_USER, BACKEND_URL, COOKIE_NAME } from "../config/config";
 import { defaultHeader } from "../helpers/api";
 import { getUserEncoded, setUserProfile } from "./UserProfile";
+
+export function ping() {
+  return webix
+    .ajax()
+    .timeout(8000)
+    .get(BACKEND_URL)
+    .then((r) => r.json())
+    .fail((err) => {
+      webix.alert({
+        type: "alert-error",
+        title: "Connection Error",
+        text: "Please make sure your network setting are correct.",
+      });
+    });
+}
 
 export function getMe(userEncoded) {
   const params = {
@@ -16,7 +31,8 @@ export function getMe(userEncoded) {
       Authorization: `Basic ${userEncoded}`,
     })
     .post(API_URL, params)
-    .then((r) => r.json());
+    .then((r) => r.json())
+    .fail((err) => {});
 }
 
 function status() {

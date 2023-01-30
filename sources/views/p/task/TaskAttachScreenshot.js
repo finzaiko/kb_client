@@ -1,8 +1,10 @@
 import { JetView } from "webix-jet";
+import { getScreenSize } from "../../../helpers/ui";
 import { state, url } from "../../../models/Task";
 
 const prefix = state.prefix + "_attachscreen_";
-const prefixPage = state.prefix + "_page_";
+const prefixPage = state.prefix + "_detail_";
+const prefixForm = state.prefix + "_form_";
 
 let video,
   canvas,
@@ -40,12 +42,8 @@ const BlobToBase64 = function (urlObj, blob) {
 function checkCamera() {
   navigator.mediaDevices
     .enumerateDevices()
-    .then(function (devices) {
-
-    })
-    .catch(function (err) {
-
-    });
+    .then(function (devices) {})
+    .catch(function (err) {});
 }
 
 function flipCamera() {
@@ -66,11 +64,25 @@ async function startCamera() {
 }
 
 function captureCamera() {
+  console.log("state.isEdit", state.isEdit);
+
+  let prefixThis = state.isEdit ? prefixPage : prefixForm;
+  if ($$(prefixThis + "file_view_panel")) {
+    $$(prefixThis + "file_view_panel").show();
+  }
+  if ($$(prefixThis + "file_attach_panel")) {
+    $$(prefixThis + "file_attach_panel").show();
+  }
+  if ($$(prefixThis + "cancel_file")) {
+    $$(prefixThis + "cancel_file").show();
+  }
+
+  console.log("prefixThis", prefixThis);
+
   canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
   let imgDataUrl = canvas.toDataURL("image/png");
+
   $$("form_photo").setValue(imgDataUrl);
-  $$(prefixPage + "file_view_panel").show();
-  $$(prefixPage + "file_attach_panel").show();
   // video.style.display = "none";
 }
 
@@ -94,6 +106,7 @@ function WindowForm() {
     id: winId,
     width: 500,
     height: 400,
+    fullscreen: getScreenSize() == "small" ? true : false,
     head: {
       view: "toolbar",
       cols: [
@@ -153,8 +166,11 @@ function WindowForm() {
 
                         $$("form_photo").setValue(event.target.result);
                         $$(winId).close();
-                        $$(prefixPage + "file_view_panel").show();
-                        $$(prefixPage + "file_attach_panel").show();
+                        let prefixThis = state.isEdit ? prefixPage : prefixForm;
+
+                        $$(prefixThis + "file_view_panel").show();
+                        $$(prefixThis + "file_attach_panel").show();
+                        $$(prefixThis + "cancel_file").show();
                       };
                       state.fileNameUpload = Object.values(
                         $$(prefix + "_open_uploader").files.data.pull

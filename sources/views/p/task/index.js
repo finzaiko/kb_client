@@ -1,421 +1,297 @@
 import { JetView } from "webix-jet";
-import {
-  getFileByTaskId,
-  getTaskById,
-  imgTemplate,
-  removeFile,
-  state,
-  uploadByTaskId,
-  url,
-} from "../../../models/Task";
+import { getColumnByProjectId, getMyTask, state } from "../../../models/Task";
 import { getProjectById, state as stateProject } from "../../../models/Project";
-import {
-  createComment,
-  getAllComment,
-  removeComment,
-  state as stateComment,
-  updateComment,
-} from "../../../models/Comment";
-import { getDateFormatted } from "../../../helpers/ui";
-import { BACKEND_URL } from "../../../config/config";
-import { userProfile } from "../../../models/UserProfile";
-import { TaskPhotoPreview } from "./TaskPhotoPreview";
-import { TaskAttachScreenshot } from "./TaskAttachScreenshot";
+import { getDateFormatted, getScreenSize } from "../../../helpers/ui";
+import { FloatingButton } from "../../../helpers/component";
+import { mergeByKey } from "../../../helpers/api";
 
-const prefix = state.prefix + "_page_";
+import TimeAgo from "javascript-time-ago";
+import en from "javascript-time-ago/locale/en";
+TimeAgo.addDefaultLocale(en);
+const timeAgo = new TimeAgo("en-US");
 
-async function loadComments() {
-  const comments = await getAllComment(state.selId);
-  const commentListId = $$(prefix + "comment_list");
-  stateComment.dataComments = comments;
-  let outputHtml = "";
-  comments.forEach((obj) => {
-    outputHtml += `<div class='comment_list_panel'>${
-      obj.name
-    } <span style='color:grey'>create at: ${getDateFormatted(
-      obj.date_creation
-    )} update at: ${getDateFormatted(obj.date_modification)}</span><br>
-    <div class='comment_list_msg'><span class='comment_msg'>${
-      obj.comment
-    }</span>
-    <span class='action-icon'>
-      <span class='webix_icon mdi mdi-pencil update-icon' title='Update' data-comment_id=${
-        obj.id
-      }></span>
-      <span class='webix_icon mdi mdi-close remove-icon' title='Delete' data-comment_id=${
-        obj.id
-      }></span>
-    </span>
-    </div>
-    </div>`;
-  });
-  commentListId.setHTML(outputHtml);
-  commentListId.scrollTo(0, 1000);
+const prefix = state.prefix + "_";
+let _scope;
+
+function backToGrid(_this) {
+  const backRoute = `p.project`;
+  _this.show(backRoute);
 }
 
-function removeCommentById(selId) {
-  webix.confirm({
-    ok: "Yes",
-    cancel: "No",
-    text: "Are you sure to delete ?",
-    callback: function (result) {
-      if (result) {
-        removeComment(selId).then((_) => {
-          webix.message({
-            text: "Comment deleted",
-            type: "success",
-          });
-          loadComments();
-          clearComments();
-        });
-      }
-    },
-  });
-}
+function time2TimeAgo(ts) {
+  // This function computes the delta between the
+  // provided timestamp and the current time, then test
+  // the delta for predefined ranges.
 
-function clearComments() {
-  $$(prefix + "comment_text").setValue();
-  stateComment.dataSelected = {};
-}
+  var d = new Date(); // Gets the current time
+  var nowTs = Math.floor(d.getTime() / 1000); // getTime() returns milliseconds, and we need seconds, hence the Math.floor and division by 1000
+  var seconds = nowTs - ts;
 
-async function loadFiles() {
-  const images = await getFileByTaskId(state.selId);
-  const fileId = $$(prefix + "file_view");
-  if (images.length > 0) {
-    $$(prefix + "file_view_empty").hide();
-    $$(prefix + "file_view_panel").show();
-    $$(prefix + "file_view").show();
-    fileId.clearAll();
-    fileId.parse(images);
-    state.images = images;
-    var viewsArray = [];
-    for (var i = 0; i < images.length; i++) {
-      viewsArray.push({
-        id: images[i].id,
-        css: "image",
-        template: imgTemplate,
-        data: webix.copy(images[i]),
-      });
-    }
-
-    state.imageView = viewsArray;
-  } else {
-    $$(prefix + "file_view_empty").show();
-    $$(prefix + "file_view_panel").hide();
-    $$(prefix + "file_view").hide();
+  // more that two days
+  if (seconds > 2 * 24 * 3600) {
+    return "a few days ago";
   }
-  return null;
-}
+  // a day
+  if (seconds > 24 * 3600) {
+    return "yesterday";
+  }
 
-function removeFileById(selId) {
-  webix.confirm({
-    ok: "Yes",
-    cancel: "No",
-    text: "Are you sure to delete ?",
-    callback: function (result) {
-      if (result) {
-        removeFile(selId).then((_) => {
-          webix.message({
-            text: "File deleted",
-            type: "success",
-          });
-          loadFiles().then((_) => {});
-        });
-      }
-    },
-  });
+  if (seconds > 3600) {
+    return "a few hours ago";
+  }
+  if (seconds > 1800) {
+    return "Half an hour ago";
+  }
+  if (seconds > 60) {
+    return Math.floor(seconds / 60) + " minutes ago";
+  }
 }
 
 export default class TaskPage extends JetView {
   config() {
-    const toolbar = {
-      view: "toolbar",
-      css: "nav_toolbar",
-      elements: [
-        { width: 10 },
-        {
-          view: "icon",
-          icon: "mdi mdi-arrow-left",
-          click: () => {
-            this.show(`p.project?project_id=${stateProject.selId}`);
+    _scope = this;
+    function uiSmall(_this) {
+      const toolbar = {
+        view: "toolbar",
+        css: "z_navbar",
+        elements: [
+          { width: 10 },
+          {
+            view: "icon",
+            icon: "mdi mdi-arrow-left",
+            click: () => {
+              backToGrid(_this);
+            },
+          },
+          {
+            view: "label",
+            label: " Task",
+            id: prefix + "navbar",
+          },
+          {},
+        ],
+      };
+
+      const taskGrid = {
+        view: "datatable",
+        id: prefix + "table",
+        select: "row",
+        header: false,
+        scrollX: false,
+        rowHeight: 60,
+        fixedRowHeight: false,
+        rowLineHeight: 20,
+        maxRowHeight: 60,
+        columns: [
+          {
+            id: "name",
+            template: function (obj, common) {
+              return `<div class='task_item'><span class='task_item_title'>${obj.title}</span><br><span class='task_item_desc'>${obj.description}</span>
+              <span class='task_item_trailing'>${timeAgo.format(obj.date_modification * 1000, "mini")}</span>
+              </div>`;
+            },
+            fillspace: true,
+          },
+        ],
+        on: {
+          onItemClick: function (id) {
+            state.selId = id.row;
+            _this.show(
+              "/app/p.task.detail?project_id=" +
+                stateProject.selId +
+                "&id=" +
+                id.row
+            );
+          },
+          on: {
+            onAfterLoad: function () {
+              webix.delay(function () {
+                this.adjustRowHeight("name", true);
+                this.render();
+              }, this);
+            },
+            onColumnResize: function () {
+              this.adjustRowHeight("name", true);
+              this.render();
+            },
           },
         },
-        {
-          view: "label",
-          label: " Task",
-          id: prefix + "_navbar",
-        },
-        {},
-      ],
-    };
+      };
+      return {
+        rows: [toolbar, taskGrid],
+      };
+    }
 
-    return {
-      type: "clean",
-      borderless: true,
-      rows: [
-        toolbar,
-        {
-          view: "template",
-          id: prefix + "task_view",
-          // height: 60,
-          autoheight: true,
-          template: function (obj) {
-            if (Object.keys(obj).length !== 0 && obj.constructor === Object) {
-              return `<div class='task_view_template' style='background:${obj.color.background}'><div class='task_view__title'>${obj.title}</div> Description: ${obj.description}, creator: ${obj.creator_id}</div>`;
-            }
-            return "";
+    function uiWide() {
+      return {
+        rows: [
+          {
+            id: prefix + "empty",
+            template: "Please select project",
           },
-        },
-        {
-          type: "clean",
-          css: "task_action",
-          cols: [
-            {
-              view: "button",
-              autowidth: true,
-              type: "icon",
-              icon: "mdi mdi-pencil",
-              tooltip: "Edit",
-              css: { "padding-right": "10px" },
-              click: function () {
-                this.$scope.show(
-                  `p.task.edit?project_id=${stateProject.selId}&id=${state.selId}`
-                );
-              },
-            },
-            {
-              view: "button",
-              autowidth: true,
-              type: "icon",
-              icon: "mdi mdi-attachment",
-              tooltip: "Attachment",
-              css: { "padding-right": "10px" },
-              click: function () {
-                this.$scope.ui(TaskAttachScreenshot).show();
-              },
-            },
-            {},
-          ],
-        },
-        {
-          id: prefix + "file_view_panel",
-          height: 100,
-          hidden: true,
-          cols: [
-            {
-              width: 130,
-              id: prefix + "file_attach_panel",
-              hidden: true,
-              cols: [
-                { width: 10, css: "white_background" },
-                {
-                  rows: [
-                    {
-                      view: "photo",
-                      name: "photo",
-                      css: "form_photo",
-                      id: "form_photo",
-                      borderless: false,
-                      width: 120,
-                      height: 65,
+          {
+            id: prefix + "panel",
+            hidden: true,
+            rows: [
+              {
+                view: "toolbar",
+                css: "z_navbar webix_primary_light",
+                elements: [
+                  {
+                    view: "button",
+                    label: "Create",
+                    css: "webix_primary_dark",
+                    autowidth: true,
+                    click: function () {
+                      this.$scope.show(
+                        "p.task.add?project_id=" + stateProject.selId
+                      );
+                      // state.scope.show("app/p.task.add?project_id=" + state.selId);
                     },
-                    {
-                      view: "button",
-                      label: "Upload",
-                      css: "webix_primary",
-                      click: function () {
-                        let imageBase64 = $$("form_photo").getValue();
-
-                        const fileName =
-                          state.fileNameUpload || `${new Date().valueOf()}.png`;
-                        imageBase64 = imageBase64.replace(
-                          "data:image/png;base64,",
-                          ""
-                        );
-                        imageBase64 = imageBase64.replace(" ", "+");
-
-                        uploadByTaskId(
-                          stateProject.selId,
-                          state.selId,
-                          fileName,
-                          imageBase64
-                        ).then((_) => {
-                          loadFiles().then((_) => {
-                            $$(prefix + "file_attach_panel").hide();
-                          });
-                        });
-                      },
+                  },
+                  {
+                    view: "text",
+                    placeholder: "Search..",
+                    value: "status:open",
+                    width: 400,
+                  },
+                ],
+              },
+              {
+                view: "datatable",
+                id: prefix + "table",
+                select: "row",
+                columns: [
+                  {
+                    id: "title",
+                    header: ["Title", { content: "textFilter" }],
+                    width: 200,
+                  },
+                  {
+                    id: "description",
+                    header: ["Description", { content: "textFilter" }],
+                    fillspace: true,
+                  },
+                  {
+                    id: "column_name",
+                    header: ["Status", { content: "textFilter" }],
+                  },
+                  {
+                    id: "assignee_name",
+                    header: ["Created by", { content: "textFilter" }],
+                    width: 100,
+                  },
+                  {
+                    id: "updated_at",
+                    header: "Update at",
+                    width: 150,
+                    template: function (obj, common) {
+                      return getDateFormatted(obj.date_modification);
+                      // const dateVal = new Date(obj.date_modification).toLocaleDateString('en-US');
+                      // const unixEpochTimeMS = obj.date_modification * 1000;
+                      // return timeAgo.format(obj.date_modification * 1000, "mini")
                     },
-                  ],
-                },
-                { width: 10, css: "white_background" },
-              ],
-            },
-            { id: prefix + "file_view_empty", css: "white_background" },
-            {
-              view: "dataview",
-              id: prefix + "file_view",
-              height: 100,
-              xCount: 4,
-              select: true,
-              hidden: true,
-              type: {
-                height: 100,
-                width: "auto",
-              },
-              template: `<div style='background-image:url(${BACKEND_URL}/data/files/thumbnails/#path#);height:100px;background-repeat:no-repeat;background-position:center;background-size:contain;object-fit: contain;position: relative;'>
-              <div class='item-click' style='width:85%;height:100%;float:left;'></div>
-              <div class='webix_icon mdi mdi-close remove-file-icon' style='float:right;width:5%;height:20px;z-index:1000;padding:10px' title='Delete'></div>
-              </div>
-              `,
-              onClick: {
-                "item-click": function (e, id, node) {
-                  e.preventDefault();
-                  this.$scope.ui(TaskPhotoPreview).show();
-                },
-                "remove-file-icon": function (e, id, node) {
-                  e.preventDefault();
-                  removeFileById(id);
-                },
-              },
-            },
-          ],
-        },
-        {
-          view: "template",
-          template: "Comments",
-          type: "section",
-          css: { background: "#fff" },
-        },
-        {
-          padding: 10,
-          css: { background: "#fff" },
-          rows: [
-            {
-              view: "textarea",
-              id: prefix + "comment_text",
-              height: 100,
-              css: "testx"
-            },
-            {
-              cols: [
-                {
-                  view: "button",
-                  label: "Submit",
-                  autowidth: true,
-                  css: "webix_primary",
-                  click: function () {
-                    const commentViewId = $$(prefix + "comment_list");
-                    const obj = stateComment.dataSelected;
-                    if (
-                      Object.keys(obj).length !== 0 &&
-                      obj.constructor === Object
-                    ) {
-                      updateComment(
-                        obj.id,
-                        $$(prefix + "comment_text").getValue()
-                      ).then((_) => {
-                        webix.message({
-                          text: "Comment updated",
-                          type: "success",
-                        });
-                        loadComments();
-                        clearComments();
-                        $$(prefix + "cancel_edit_comment").hide();
-                      });
-                    } else {
-                      createComment(
-                        state.selId,
-                        userProfile.userId,
-                        $$(prefix + "comment_text").getValue()
-                      ).then((r) => {
-                        webix.message({
-                          text: "Comment saved",
-                          type: "success",
-                        });
-                        loadComments();
-                        clearComments();
-                        $$(prefix + "cancel_edit_comment").hide();
-                      });
-                    }
+                  },
+                ],
+                on: {
+                  onItemClick: function (id) {
+                    // return;
+                    this.$scope.show(
+                      "/app/p.task.detail?project_id=" +
+                        stateProject.selId +
+                        "&id=" +
+                        id
+                    );
                   },
                 },
-                {
-                  view: "button",
-                  label: "Cancel",
-                  id: prefix + "cancel_edit_comment",
-                  hidden: true,
-                  autowidth: true,
-                  click: function () {
-                    stateComment.dataSelected = {};
-                    $$(prefix + "comment_text").setValue();
-                    this.hide();
-                  },
-                },
-                {},
-              ],
-            },
-            { height: 20 },
-          ],
-        },
-        {
-          id: prefix + "comment_list",
-          view: "template",
-          css: "comment_list",
-          scroll: "y",
-          onClick: {
-            "update-icon": function (e, id, node) {
-              const selId = parseInt(node.dataset.comment_id);
-              const item = stateComment.dataComments.find((e) => e.id == selId);
-              stateComment.dataSelected = item;
-              const commentTxtId = $$(prefix + "comment_text");
-              commentTxtId.setValue(item.comment);
-              commentTxtId.focus();
-              $$(prefix + "cancel_edit_comment").show();
-
-              webix.html.addCss(
-                commentTxtId.getNode(),
-                "flash_hightlight_comment"
-              );
-              setTimeout(() => {
-                webix.html.removeCss(
-                  commentTxtId.$view,
-                  "flash_hightlight_comment"
-                );
-              }, 1000);
-            },
-            "remove-icon": function (e, id, node) {
-              const selId = parseInt(node.dataset.comment_id);
-              removeCommentById(selId);
-            },
+              },
+            ],
           },
-        },
-      ],
-    };
+        ],
+      };
+    }
+
+    // return {
+    //   template: "test"
+    // }
+    // return uiWide();
+    return getScreenSize() == "wide" ? uiWide() : uiSmall(this);
   }
-  urlChange(_, url) {
-    state.selId = url[0].params.id;
+  init(view) {}
+  // urlChange(_, url) {
+  //   // state.selId = url[0].params.id;
+  //   stateProject.selId = url[0].params.project_id;
+  // }
+  async urlChange(_, url) {
+    console.log("onchage");
     stateProject.selId = url[0].params.project_id;
+    // state.selId = url[0].params.project_id;
+
+    if (getScreenSize() == "wide") {
+      if (!stateProject.selId) {
+        this.$$(prefix + "empty").show();
+        this.$$(prefix + "panel").hide();
+      } else {
+        this.$$(prefix + "empty").hide();
+        this.$$(prefix + "panel").show();
+
+        const taskTblId = $$(prefix + "table");
+        webix.extend(taskTblId, webix.ProgressBar);
+        taskTblId.disable();
+        taskTblId.showProgress();
+
+        const tasks = await getMyTask(stateProject.selId);
+        this.$$(prefix + "table").parse(tasks, "json", true);
+        taskTblId.enable();
+        taskTblId.hideProgress();
+      }
+    } else {
+      const project = await getProjectById(stateProject.selId);
+      const navbarId = $$(prefix + "navbar");
+      navbarId.setValue(`Task - ${project.name}`);
+
+      const tasks = await getMyTask(stateProject.selId);
+
+      this.$$(prefix + "table").clearAll();
+      this.$$(prefix + "table").parse(tasks);
+    }
   }
-  async ready(_, url) {
-    state.selId = url[0].params.id;
+
+  async ready(view, url) {
+    // state.selId = url[0].params.id;
     stateProject.selId = url[0].params.project_id;
-    const project = await getProjectById(stateProject.selId);
-    const task = await getTaskById(state.selId);
-    const taskViewId = this.$$(prefix + "task_view");
-    this.$$(prefix + "_navbar").setValue(project.name);
+    console.log("stateProject.selId", stateProject.selId);
 
-    taskViewId.parse(task);
-    taskViewId.refresh();
+    if (getScreenSize() == "wide") {
+      if (!stateProject.selId) {
+        this.$$(prefix + "empty").show();
+        this.$$(prefix + "panel").hide();
+      } else {
+        this.$$(prefix + "empty").hide();
+        this.$$(prefix + "panel").show();
+        const tasks = await getMyTask(stateProject.selId);
+        this.$$(prefix + "table").parse(tasks, "json", true);
+      }
+    } else {
+      const taskTblId = $$(prefix + "table");
+      webix.extend(taskTblId, webix.ProgressBar);
+      taskTblId.disable();
+      taskTblId.showProgress();
 
-    await loadComments();
+      const project = await getProjectById(stateProject.selId);
+      const navbarId = $$(prefix + "navbar");
+      navbarId.setValue(`Task - ${project.name}`);
 
-    await loadFiles();
+      const tasks = await getMyTask(stateProject.selId);
+      this.$$(prefix + "table").parse(tasks, "json", true);
+      taskTblId.enable();
+      taskTblId.hideProgress();
+      FloatingButton("create_task_float", function () {
+        _scope.show("p.task.add?project_id=" + stateProject.selId);
+      }).show();
+    }
   }
-
   destructor() {
-    stateComment.dataComments = [];
-    stateComment.dataSelected = {};
-    state.fileNameUpload = "";
+    if ($$("create_task_float")) $$("create_task_float").close();
   }
 }

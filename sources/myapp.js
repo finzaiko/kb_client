@@ -1,8 +1,8 @@
 import "./styles/app.css";
 import { JetApp, EmptyRouter, HashRouter, plugins } from "webix-jet";
 import session from "./models/session";
-import { initSession } from "./models/UserProfile";
-import { setAppHeader } from "./helpers/api";
+import { getScreenSize } from "./helpers/ui";
+import { APP_NAME } from "./config/config";
 
 webix.protoUI(
   {
@@ -40,12 +40,16 @@ webix.protoUI(
 
 export default class MyApp extends JetApp {
   constructor(config) {
+    console.log("getScreenSize()", getScreenSize());
+
     const defaults = {
       id: APPNAME,
       version: VERSION,
       router: BUILD_AS_MODULE ? EmptyRouter : HashRouter,
       debug: !PRODUCTION,
-      start: "/app/start",
+      name: APP_NAME,
+      // start: getScreenSize() == "wide" ? "/app/start" : "/mobile/start",
+      start: "/app/p.project",
     };
 
     super({ ...defaults, ...config });
@@ -53,6 +57,7 @@ export default class MyApp extends JetApp {
     this.use(plugins.User, {
       model: session,
       // ping: 10000,
+      // afterLogin: getScreenSize() == "wide" ? "/app/start" : "/mobile/start",
     });
   }
 }
@@ -60,7 +65,7 @@ export default class MyApp extends JetApp {
 if (!BUILD_AS_MODULE) {
   webix.ready(() => {
     const app = new MyApp();
-
+    // ping();
     app.render();
   });
 }

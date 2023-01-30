@@ -61,6 +61,7 @@ module.exports = function(env) {
 				PRODUCTION : production,
 				BUILD_AS_MODULE : (asmodule || standalone),
 				"process.env": {
+					APP_NAME: JSON.stringify(pack.app_name) || "App",
 					ENDPOINT: JSON.stringify(env.endpoint),
 				},
 			})
@@ -79,6 +80,15 @@ module.exports = function(env) {
 
 	if (!production){
 		config.devtool = "inline-source-map";
+
+		replace({
+			regex: "<title>(.*?)</title>",
+			replacement: `<title>${pack.app_name}</title>`,
+			paths: ['./Test/'],
+			paths: ["./index.html"],
+			recursive: false,
+			silent: false,
+		  });
 	}
 
 	if (asmodule){
@@ -105,7 +115,6 @@ module.exports = function(env) {
 		recursive: true,
 		silent: true
 	});
-	// END: ARIFIN
 
 	return config;
 };

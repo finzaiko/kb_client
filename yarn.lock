@@ -2830,6 +2830,13 @@ isobject@^3.0.1:
   resolved "https://registry.npmjs.org/isobject/-/isobject-3.0.1.tgz"
   integrity sha1-TkMekrEalzFjaqH5yNHMvP2reN8= sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==
 
+javascript-time-ago@^2.5.9:
+  version "2.5.9"
+  resolved "https://registry.npmjs.org/javascript-time-ago/-/javascript-time-ago-2.5.9.tgz"
+  integrity sha512-pQ8mNco/9g9TqWXWWjP0EWl6i/lAQScOyEeXy5AB+f7MfLSdgyV9BJhiOD1zrIac/lrxPYOWNbyl/IW8CW5n0A==
+  dependencies:
+    relative-time-format "^1.1.6"
+
 jest-worker@^27.0.6:
   version "27.3.1"
   resolved "https://registry.npmjs.org/jest-worker/-/jest-worker-27.3.1.tgz"
@@ -3697,6 +3704,11 @@ regjsparser@^0.7.0:
   integrity sha512-A4pcaORqmNMDVwUjWoTzuhwMGpP+NykpfqAsEgI1FSH/EzC7lrN5TMd+kN8YCovX+jMpu8eaqXgXPCa0g8FQNQ==
   dependencies:
     jsesc "~0.5.0"
+
+relative-time-format@^1.1.6:
+  version "1.1.6"
+  resolved "https://registry.npmjs.org/relative-time-format/-/relative-time-format-1.1.6.tgz"
+  integrity sha512-aCv3juQw4hT1/P/OrVltKWLlp15eW1GRcwP1XdxHrPdZE9MtgqFpegjnTjLhi2m2WI9MT/hQQtE+tjEWG1hgkQ==
 
 replace@^1.2.2:
   version "1.2.2"

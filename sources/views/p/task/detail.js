@@ -1,7 +1,6 @@
 import { JetView } from "webix-jet";
 import {
   getFileByTaskId,
-  getMyTask,
   getTaskById,
   imgTemplate,
   removeFile,
@@ -10,7 +9,7 @@ import {
 } from "../../../models/Task";
 import { getProjectById, state as stateProject } from "../../../models/Project";
 import { BACKEND_URL } from "../../../config/config";
-import { getDateFormatted } from "../../../helpers/ui";
+import { getDateFormatted, getScreenSize } from "../../../helpers/ui";
 import {
   createComment,
   getAllComment,
@@ -26,8 +25,34 @@ const prefix = state.prefix + "_detail_";
 const prefixAttach = state.prefix + "_attachscreen_";
 
 function backToGrid(_this) {
-  const backRoute = `m.task?project_id=${stateProject.selId}`;
+  const backRoute = `p.task?project_id=${stateProject.selId}`;
   _this.show(backRoute);
+}
+
+function removeTaskById(selId) {
+  webix.confirm({
+    ok: "Yes",
+    cancel: "No",
+    text: "Are you sure to delete ?",
+    callback: function (result) {
+      if (result) {
+        const taskPanelId = $$(prefix + "task_view_panel");
+        webix.extend(taskPanelId, webix.ProgressBar);
+        taskPanelId.showProgress();
+        taskPanelId.disable();
+
+        removeTaskById(selId).then((_) => {
+          webix.message({
+            text: "File deleted",
+            type: "success",
+          });
+          loadFiles().then((_) => {});
+          taskPanelId.hideProgress();
+          taskPanelId.enable();
+        });
+      }
+    },
+  });
 }
 
 function removeFileById(selId) {
@@ -37,12 +62,18 @@ function removeFileById(selId) {
     text: "Are you sure to delete ?",
     callback: function (result) {
       if (result) {
+        const taskPanelId = $$(prefix + "task_view_panel");
+        webix.extend(taskPanelId, webix.ProgressBar);
+        taskPanelId.showProgress();
+        taskPanelId.disable();
         removeFile(selId).then((_) => {
           webix.message({
             text: "File deleted",
             type: "success",
           });
           loadFiles().then((_) => {});
+          taskPanelId.hideProgress();
+          taskPanelId.enable();
         });
       }
     },
@@ -137,19 +168,26 @@ async function loadComments() {
   setTimeout(() => commentListId.scrollTo(0, 1000), 300);
 }
 
+function backToIcon(_this) {
+  return getScreenSize() == "wide"
+    ? { width: 1 }
+    : {
+        view: "icon",
+        icon: "mdi mdi-arrow-left",
+        click: () => {
+          backToGrid(_this);
+        },
+      };
+}
+
 export default class TaskDetailMobile extends JetView {
   config() {
     const toolbar = {
       view: "toolbar",
+      css: "z_navbar",
       elements: [
         { width: 10 },
-        {
-          view: "icon",
-          icon: "mdi mdi-arrow-left",
-          click: () => {
-            backToGrid(this);
-          },
-        },
+        backToIcon(this),
         {
           view: "label",
           label: " Task",
@@ -160,17 +198,41 @@ export default class TaskDetailMobile extends JetView {
     };
 
     const taskPanel = {
+      id: prefix + "task_view_panel",
       rows: [
         {
           view: "template",
           id: prefix + "task_view",
-          // height: 60,
+          //   height: 100,
+          css: "task_view_tmpl_list",
           autoheight: true,
           template: function (obj) {
             if (Object.keys(obj).length !== 0 && obj.constructor === Object) {
-              return `<div class='task_view_template' style='background:${obj.color.background}'><div class='task_view__title'>${obj.title}</div> Description: ${obj.description}, creator: ${obj.creator_id}</div>`;
+              return `<div class='task_view_panel'>
+                        <div class='task_view_template' style='background:${
+                          obj.color.background
+                        }'>
+                            <div class='task_view__title'>${
+                              obj.title
+                            }</div> Description: ${obj.description}
+                            <div class='task_detail_foot'>creator: ${
+                              obj.assignee_name
+                            } modified: ${getDateFormatted(
+                obj.date_modification
+              )}</div>
+                            </div>
+                        </div>
+                    `;
+              // <span class='showmore-action-icon'>show more<span class='webix_icon mdi mdi-menu-down showmore-icon' title='Show more'></span></span>
             }
             return "";
+          },
+          onClick: {
+            "showmore-icon": function (e, id, node) {
+              const tId = $$(prefix + "task_view");
+              tId.config.autoheight = true;
+              tId.refresh();
+            },
           },
         },
         {
@@ -181,12 +243,23 @@ export default class TaskDetailMobile extends JetView {
               view: "button",
               autowidth: true,
               type: "icon",
+              icon: "mdi mdi-delete-outline z_mdi_red_color",
+              tooltip: "Delete",
+              css: { "padding-right": "10px" },
+              click: function () {
+                removeTaskById(state.selId);
+              },
+            },
+            {
+              view: "button",
+              autowidth: true,
+              type: "icon",
               icon: "mdi mdi-pencil",
               tooltip: "Edit",
               css: { "padding-right": "10px" },
               click: function () {
                 this.$scope.show(
-                  `m.task.edit?project_id=${stateProject.selId}&id=${state.selId}`
+                  `p.task.edit?project_id=${stateProject.selId}&id=${state.selId}`
                 );
               },
             },
@@ -196,7 +269,7 @@ export default class TaskDetailMobile extends JetView {
               type: "icon",
               icon: "mdi mdi-attachment",
               tooltip: "Attachement",
-              css: { "padding-right": "10px" },
+              css: { "padding-right": "10px", background: "white" },
               click: function () {
                 this.$scope.ui(TaskAttachScreenshot).show();
               },
@@ -208,7 +281,7 @@ export default class TaskDetailMobile extends JetView {
           height: 35,
           css: "attach_section",
           cols: [
-            { width: 10 },
+            { width: 10, css: { background: "white" } },
             {
               type: "clean",
               css: "attach_section_label",
@@ -223,7 +296,7 @@ export default class TaskDetailMobile extends JetView {
               template: "<hr>",
               onClick: {
                 attach_section: function () {
-                  console.log("aa");
+                  console.log("test");
                 },
               },
             },
@@ -232,7 +305,7 @@ export default class TaskDetailMobile extends JetView {
               css: "mdi_fontsize_20 attach_section_icon",
               icon: "mdi mdi-menu-down",
             },
-            { width: 10 },
+            { width: 10, css: { background: "white" } },
           ],
         },
         {
@@ -258,31 +331,59 @@ export default class TaskDetailMobile extends JetView {
                       height: 65,
                     },
                     {
-                      view: "button",
-                      label: "Upload",
-                      css: "webix_primary",
-                      click: function () {
-                        let imageBase64 = $$("form_photo").getValue();
+                      css: "photo_panel_spacer",
+                      cols: [
+                        {
+                          view: "button",
+                          label: "Upload",
+                          css: "webix_secondary",
+                          click: function () {
+                            let imageBase64 = $$("form_photo").getValue();
 
-                        const fileName =
-                          state.fileNameUpload || `${new Date().valueOf()}.png`;
-                        imageBase64 = imageBase64.replace(
-                          "data:image/png;base64,",
-                          ""
-                        );
-                        imageBase64 = imageBase64.replace(" ", "+");
+                            const fileName =
+                              state.fileNameUpload ||
+                              `${new Date().valueOf()}.png`;
+                            imageBase64 = imageBase64.replace(
+                              "data:image/png;base64,",
+                              ""
+                            );
+                            imageBase64 = imageBase64.replace(" ", "+");
 
-                        uploadByTaskId(
-                          stateProject.selId,
-                          state.selId,
-                          fileName,
-                          imageBase64
-                        ).then((_) => {
-                          loadFiles().then((_) => {
+                            const taskPanelId = $$(prefix + "task_view_panel");
+                            webix.extend(taskPanelId, webix.ProgressBar);
+                            taskPanelId.showProgress();
+                            taskPanelId.disable();
+
+                            uploadByTaskId(
+                              stateProject.selId,
+                              state.selId,
+                              fileName,
+                              imageBase64
+                            ).then((_) => {
+                              loadFiles().then((_) => {
+                                $$(prefix + "file_attach_panel").hide();
+                              });
+                              taskPanelId.hideProgress();
+                              taskPanelId.enable();
+                            });
+                          },
+                        },
+                        {
+                          view: "button",
+                          type: "icon",
+                          icon: "mdi mdi-close",
+                          id: prefix + "cancel_file",
+                          autowidth: true,
+                          hidden: true,
+                          click: function () {
+                            $$("form_photo").setValue();
                             $$(prefix + "file_attach_panel").hide();
-                          });
-                        });
-                      },
+                            if ($$(prefix + "file_view").count() == 0) {
+                              $$(prefix + "file_view_panel").hide();
+                            }
+                          },
+                        },
+                      ],
                     },
                   ],
                 },
@@ -302,7 +403,7 @@ export default class TaskDetailMobile extends JetView {
                 height: 100,
                 width: "auto",
               },
-              template: `<div style='background-image:url(${BACKEND_URL}/data/files/thumbnails/#path#);height:100px;background-repeat:no-repeat;background-position:center;background-size:contain;object-fit: contain;position: relative;'>
+              template: `<div style='background-image:url(${BACKEND_URL}/data/files/thumbnails/#path#?${Date.now()});height:100px;background-repeat:no-repeat;background-position:center;background-size:contain;object-fit: contain;position: relative;'>
               <div class='item-click' style='width:85%;height:100%;float:left;'></div>
               <div class='webix_icon mdi mdi-close remove-file-icon' style='float:right;width:5%;height:20px;z-index:1000;padding:10px' title='Delete'></div>
               </div>
@@ -325,7 +426,7 @@ export default class TaskDetailMobile extends JetView {
           height: 35,
           css: "comment_section",
           cols: [
-            { width: 10 },
+            { width: 10, css: { background: "white" } },
             {
               type: "clean",
               css: "comment_section_label",
@@ -349,7 +450,7 @@ export default class TaskDetailMobile extends JetView {
               css: "mdi_fontsize_20 comment_section_icon",
               icon: "mdi mdi-menu-down",
             },
-            { width: 10 },
+            { width: 10, css: { background: "white" } },
           ],
         },
         {
@@ -357,6 +458,7 @@ export default class TaskDetailMobile extends JetView {
           type: "clean",
           autoheight: true,
           id: prefix + "comment_view_panel",
+          css: "comment_view_panel",
           template: function (obj) {
             return `<div class='comment_textarea_panel'><textarea class="autosize comment_textarea" placeholder="Type here.."></textarea></div>`;
           },
@@ -386,6 +488,11 @@ export default class TaskDetailMobile extends JetView {
                       Object.keys(obj).length !== 0 &&
                       obj.constructor === Object
                     ) {
+                      const taskPanelId = $$(prefix + "task_view_panel");
+                      webix.extend(taskPanelId, webix.ProgressBar);
+                      taskPanelId.showProgress();
+                      taskPanelId.disable();
+
                       updateComment(obj.id, commentValue).then((_) => {
                         webix.message({
                           text: "Comment updated",
@@ -394,8 +501,15 @@ export default class TaskDetailMobile extends JetView {
                         loadComments();
                         clearComments();
                         $$(prefix + "cancel_edit_comment").hide();
+                        taskPanelId.hideProgress();
+                        taskPanelId.enable();
                       });
                     } else {
+                      const taskPanelId = $$(prefix + "task_view_panel");
+                      webix.extend(taskPanelId, webix.ProgressBar);
+                      taskPanelId.showProgress();
+                      taskPanelId.disable();
+
                       createComment(
                         state.selId,
                         userProfile.userId,
@@ -408,6 +522,8 @@ export default class TaskDetailMobile extends JetView {
                         loadComments();
                         clearComments();
                         $$(prefix + "cancel_edit_comment").hide();
+                        taskPanelId.hideProgress();
+                        taskPanelId.enable();
                       });
                     }
                   },
@@ -468,6 +584,7 @@ export default class TaskDetailMobile extends JetView {
       rows: [toolbar, taskPanel],
     };
   }
+
   init(view) {}
   urlChange(view, url) {
     stateProject.selId = url[0].params.project_id;
@@ -482,9 +599,24 @@ export default class TaskDetailMobile extends JetView {
     stateProject.selId = url[0].params.project_id;
     state.selId = url[0].params.id;
     state.attachOpen = url[0].params.attach || 0;
+    state.routePath = url[0].page;
 
-    const task = await getTaskById(state.selId);
+    if (state.routePath == "p.task.add") {
+      state.isEdit = false;
+    } else if (
+      (state.routePath == "p.task.edit" ||
+        state.routePath == "p.task.detail") &&
+      typeof state.selId != "undefined"
+    ) {
+      state.isEdit = true;
+    }
+
+    const taskPanelId = $$(prefix + "task_view_panel");
     const taskViewId = $$(prefix + "task_view");
+    webix.extend(taskPanelId, webix.ProgressBar);
+    taskPanelId.showProgress();
+    taskPanelId.disable();
+    const task = await getTaskById(state.selId);
 
     taskViewId.parse(task);
     taskViewId.refresh();
@@ -492,6 +624,8 @@ export default class TaskDetailMobile extends JetView {
     await loadComments();
 
     await loadFiles();
+    taskPanelId.enable();
+    taskPanelId.hideProgress();
 
     if (state.attachOpen && !$$(prefixAttach + "win")) {
       view.$scope.ui(TaskAttachScreenshot).show();

@@ -23,8 +23,18 @@ if ("OPTIONS" === $_SERVER['REQUEST_METHOD']) {
 echo $container['api']->execute();
 ```
 
-#### 2. Update get project query
+#### 2. Update get task query
 
-```
-?
+getAll method in `kanboard/app/Model/TaskFinderModel.php`
+to this
+```php
+public function getAll($project_id, $status_id = TaskModel::STATUS_OPEN)
+{
+    return
+        $this->getExtendedQuery()
+        ->eq(TaskModel::TABLE.'.project_id', $project_id)
+        ->eq(TaskModel::TABLE.'.is_active', $status_id)
+        ->desc(TaskModel::TABLE.'.id')
+        ->findAll();
+}
 ```

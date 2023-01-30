@@ -1,89 +1,130 @@
 import { JetView } from "webix-jet";
-import { getDateFormatted } from "../../../helpers/ui";
-import { state } from "../../../models/Project";
+import { APP_NAME } from "../../../config/config";
+import { getScreenSize } from "../../../helpers/ui";
+import { removeURLParam } from "../../../helpers/url";
+import { getMyProject, state } from "../../../models/Project";
 import { getMyTask } from "../../../models/Task";
+import { ProfileWindow } from "../../profile";
 
 const prefix = state + "_page_";
 
 export default class ProjectPage extends JetView {
   config() {
-
-    return {
-      rows: [
-        {
-          view: "toolbar",
-          elements: [
-            {
-              view: "button",
-              label: "Create",
-              css: "webix_primary",
-              autowidth: true,
-              click: function () {
-                this.$scope.show("p.task.add?project_id=" + state.selId);
-              },
-            },
-            {
-              view: "text",
-              placeholder: "Search..",
-              value: "status:open",
-              width: 400,
-            },
-          ],
-        },
-        {
-          view: "datatable",
-          id: prefix + "table",
-          select: "row",
-          columns: [
-            {
-              id: "title",
-              header: ["Title", { content: "textFilter" }],
-              width: 200,
-            },
-            {
-              id: "description",
-              header: ["Description", { content: "textFilter" }],
-              fillspace: true,
-            },
-            {
-              id: "creator_name",
-              header: ["Created by", { content: "textFilter" }],
-              width: 100,
-            },
-            {
-              id: "updated_at",
-              header: "Update at",
-              width: 150,
-              template: function (obj, common) {
-                return getDateFormatted(obj.date_modification);
-              },
-            },
-          ],
-          on: {
-            onItemClick: function (id) {
-              // return;
-              this.$scope.show(
-                "/app/p.task?project_id=" + state.selId + "&id=" + id
-              );
+    function uiSmall() {
+      const toolbar = {
+        view: "toolbar",
+        css: "z_navbar",
+        elements: [
+          { width: 10 },
+          {
+            view: "label",
+            label: APP_NAME,
+            id: "mobile_navbar",
+          },
+          {},
+          {
+            view: "icon",
+            icon: "mdi mdi-dots-vertical",
+            click: function () {
+              this.$scope.ui(ProfileWindow).show();
             },
           },
+          { width: 10 },
+        ],
+      };
+
+      const projectGrid = {
+        view: "datatable",
+        id: prefix + "table",
+        select: "row",
+        header: false,
+        scrollX: false,
+        rowHeight: 50,
+        columns: [
+          {
+            id: "name",
+            fillspace: true,
+          },
+        ],
+        on: {
+          onBeforeLoad: function () {
+            this.showOverlay("Loading...");
+          },
+          onAfterLoad: function () {
+            this.hideOverlay();
+          },
+          onItemClick: function (id, row) {
+            this.$scope.show("/app/p.task?project_id=" + id.row);
+            state.selId = id.row;
+          },
         },
-      ],
-    };
+      };
+      return {
+        rows: [toolbar, projectGrid],
+      };
+    }
+
+    function uiWide() {
+      const toolbar = {
+        view: "toolbar",
+        css: "z_navbar",
+        height: 42,
+        elements: [{}],
+      };
+      return {
+        rows: [
+          toolbar,
+          {
+            id: prefix + "empty",
+            template: "<div style='margin-top:50%;text-align:center;'>Please select project</div>",
+          },
+        ],
+      };
+    }
+    return getScreenSize() == "wide" ? uiWide() : uiSmall();
   }
+
   init(view) {}
   async urlChange(_, url) {
     state.selId = url[0].params.project_id;
-    const tasks = await getMyTask(state.selId);
-    this.$$(prefix + "table").clearAll();
-    this.$$(prefix + "table").parse(tasks);
+
+    if (getScreenSize() == "wide") {
+      if (!state.selId) {
+        $$(prefix + "empty").show();
+        if ($$(prefix + "panel")) this.$$(prefix + "panel").hide();
+      }
+    } else {
+      const projectTblId = $$(prefix + "table");
+      webix.extend(projectTblId, webix.ProgressBar);
+      projectTblId.disable();
+      projectTblId.showProgress();
+      const projects = await getMyProject();
+      projectTblId.parse(projects, "json", true);
+      const oldUrl = removeURLParam("project_id", window.location.href);
+      window.history.replaceState("", "", oldUrl);
+      projectTblId.hideProgress();
+      projectTblId.enable();
+    }
   }
   async ready(_, url) {
     state.selId = url[0].params.project_id;
-    const tasks = await getMyTask(state.selId);
 
-    this.$$(prefix + "table").clearAll();
-    this.$$(prefix + "table").parse(tasks);
-    // setTimeout(() => $$("app:myproject").select(state.selId), 500);
+    if (getScreenSize() == "wide") {
+      if (!state.selId) {
+        $$(prefix + "empty").show();
+        if ($$(prefix + "panel")) this.$$(prefix + "panel").hide();
+      }
+    } else {
+      const projectTblId = $$(prefix + "table");
+      webix.extend(projectTblId, webix.ProgressBar);
+      projectTblId.disable();
+      projectTblId.showProgress();
+      const projects = await getMyProject();
+      projectTblId.parse(projects, "json", true);
+      const oldUrl = removeURLParam("project_id", window.location.href);
+      window.history.replaceState("", "", oldUrl);
+      projectTblId.hideProgress();
+      projectTblId.enable();
+    }
   }
 }

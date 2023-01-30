@@ -49,7 +49,7 @@ export function removeURLParam(key, sourceURL) {
     }
     rtn = rtn + "?" + params_arr.join("&");
   }
+  let length = rtn.length;
+  if (rtn.charAt(length - 1) === "?") rtn = rtn.slice(0, length - 1);
   return rtn;
 }
-
-export const getScreenSize = () => (document.body.offsetWidth > 700 ? "wide" : "small");
