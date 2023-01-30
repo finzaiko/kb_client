@@ -1,6 +1,6 @@
 import { JetView } from "webix-jet";
 import { APP_NAME } from "../config/config";
-import { getScreenSize, isInt } from "../helpers/ui";
+import { getScreenSize, isInt, isMobileDevice } from "../helpers/ui";
 import { getMyProject, state } from "../models/Project";
 import { ProfileWindow } from "./profile";
 
@@ -111,9 +111,11 @@ export default class AppView extends JetView {
         ],
       };
 
-      return window.matchMedia("(max-width: 1440px)").matches
-        ? mediumLayout
-        : largeLayout;
+      if (!isMobileDevice() && window.innerWidth >= 1440) {
+        return largeLayout;
+      } else {
+        return mediumLayout;
+      }
     }
 
     function uiSmall() {

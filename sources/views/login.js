@@ -89,7 +89,6 @@ export default class LoginView extends JetView {
                 name: "login",
                 label: "User Name",
                 labelPosition: "top",
-                value: "arifin2",
               },
               {
                 view: "text",
@@ -97,7 +96,6 @@ export default class LoginView extends JetView {
                 name: "pass",
                 label: "Password",
                 labelPosition: "top",
-                value: "arifin123",
               },
               {
                 view: "button",

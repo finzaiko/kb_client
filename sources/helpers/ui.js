@@ -17,6 +17,17 @@ export function getDatetoISOStr(unixTimeStamp) {
   return new Date(unik * 1e3).toISOString();
 }
 
+export const isMobileDevice = () => {
+  if (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+  ) {
+    return true;
+  }
+  return false;
+};
+
 export const getScreenSize = () => {
   /*
   document.body.offsetWidth
@@ -25,8 +36,17 @@ export const getScreenSize = () => {
   sample break point:
   576px, 768px, 992px, and 1200px
   */
-  // return window.matchMedia("(max-width: 700px)").matches ? "small" : "wide";
-  return window.innerWidth < 700 ? "small" : "wide";
+
+ let appSize = "wide";
+
+ if (isMobileDevice()) {
+   appSize = "small";
+  } else {
+    // var mql = window.matchMedia("(min-width: 480px)");
+    appSize = window.innerWidth < 700 ? "small" : "wide";
+  }
+
+  return appSize;
 };
 
 export function isInt(value) {
