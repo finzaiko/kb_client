@@ -26,7 +26,7 @@ echo $container['api']->execute();
 #### 2. Update get task query
 
 getAll method in `kanboard/app/Model/TaskFinderModel.php`
-to this
+to this to get all available joined data
 ```php
 public function getAll($project_id, $status_id = TaskModel::STATUS_OPEN)
 {
@@ -34,7 +34,18 @@ public function getAll($project_id, $status_id = TaskModel::STATUS_OPEN)
         $this->getExtendedQuery()
         ->eq(TaskModel::TABLE.'.project_id', $project_id)
         ->eq(TaskModel::TABLE.'.is_active', $status_id)
-        ->desc(TaskModel::TABLE.'.id')
+        ->desc(TaskModel::TABLE.'.id') // order last update on top
         ->findAll();
+}
+```
+
+#### 3. Update get task by id query
+
+getAll method in `kanboard/app/Model/TaskFinderModel.php`
+to this to get by id available joined data
+```php
+public function getById($task_id)
+{
+    return  $this->getExtendedQuery()->eq(TaskModel::TABLE.'.id', $task_id)->findOne();
 }
 ```

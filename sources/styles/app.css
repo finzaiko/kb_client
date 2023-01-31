@@ -33,8 +33,10 @@
 
 /*login form*/
 .invalid_login .webix_header>div {
-    background: #FC3636;
-    transition: background 1s;
+    /* background: #f7b8b3; */
+    /* box-shadow: inset 0 2px red; */
+    box-shadow: inset 0 -2px 0 0 red;
+    /* transition: background 1s; */
 }
 
 .invalid_login {
@@ -457,7 +459,7 @@ p#img_screenshot_empty {
 
 .z_navbar .webix_view .webix_icon:hover,
 .z_navbar .webix_view .webix_el_box button:hover {
-    color: var(--base-primary-bg) !important;
+    color: var(--base-primary-bg);
 }
 
 .border_navbar {
@@ -469,7 +471,22 @@ p#img_screenshot_empty {
     color: #fff;
 }
 
+.webix_primary_light:hover {
+    border: 1px solid #fff;
+}
+
 .webix_primary_light button:hover {
+    color: #fff !important;
+    border: 1px solid #fff;
+}
+
+.webix_primary_outline button {
+    background: var(--base-primary-bg) !important;
+    border: 1px solid #CCD7E6;
+    color: #CCD7E6;
+}
+
+.webix_primary_outline button:hover {
     color: #fff !important;
 }
 
@@ -497,6 +514,49 @@ p#img_screenshot_empty {
     line-height: 60px;
 }
 
-.z_mdi_red_color  {
+.z_mdi_red_color {
     color: red !important;
 }
+
+.z_border_clean .webix_el_box input {
+    border-width: 0 !important;
+}
+
+.z_combo_filter label {
+    color: #fff;
+}
+
+.z_combo_filter input {
+    background: var(--base-primary-bg) !important;
+    color: #fff;
+}
+
+.z_combo_filter input:focus {
+    border: 1px solid#fff;
+}
+
+.z_combo_filter .webix_input_icon {
+    color: #fff;
+}
+
+.z_outline_button {
+    background: var(--base-primary-bg) !important;
+    color: #fff;
+}
+
+.z_text_outline input {
+    background: var(--base-primary-bg) !important;
+    color: #fff;
+}
+
+.z_text_outline input:focus {
+    border: 1px solid#fff;
+}
+
+.z_text_outline input::placeholder {
+    color: #fff;
+}
+
+/* .z_login_form{
+    box-shadow: inset 0 2px red;
+} */

@@ -67,7 +67,7 @@ export class ProfileWindow extends JetView {
         rows: [
           {
             view: "form",
-            width: 400,
+            width: 300,
             padding: 10,
             type: "clean",
             elements: [
@@ -77,6 +77,7 @@ export class ProfileWindow extends JetView {
                 name: "username",
                 value: `${userProfile.username} (${userProfile.username})`,
                 readonly: true,
+                css: "z_border_clean",
               },
             ],
           },

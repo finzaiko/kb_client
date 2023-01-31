@@ -86,8 +86,13 @@ export default class TaskPage extends JetView {
           {
             id: "name",
             template: function (obj, common) {
-              return `<div class='task_item'><span class='task_item_title'>${obj.title}</span><br><span class='task_item_desc'>${obj.description}</span>
-              <span class='task_item_trailing'>${timeAgo.format(obj.date_modification * 1000, "mini")}</span>
+              return `<div class='task_item'><span class='task_item_title'>${
+                obj.title
+              }</span><br><span class='task_item_desc'>${obj.description}</span>
+              <span class='task_item_trailing'>${timeAgo.format(
+                obj.date_modification * 1000,
+                "mini"
+              )}</span>
               </div>`;
             },
             fillspace: true,
@@ -135,12 +140,12 @@ export default class TaskPage extends JetView {
             rows: [
               {
                 view: "toolbar",
-                css: "z_navbar webix_primary_light",
+                css: "z_navbar",
                 elements: [
                   {
                     view: "button",
                     label: "Create",
-                    css: "webix_primary_dark",
+                    // css: "webix_primary_light",
                     autowidth: true,
                     click: function () {
                       this.$scope.show(
@@ -152,8 +157,27 @@ export default class TaskPage extends JetView {
                   {
                     view: "text",
                     placeholder: "Search..",
-                    value: "status:open",
+                    css: "z_text_outline",
                     width: 400,
+                  },
+                  {
+                    view: "combo",
+                    label: "Filter",
+                    css: "z_combo_filter",
+                    labelWidth: 50,
+                    value: 1,
+                    width: 200,
+                    options: [
+                      { id: 1, value: "status:open" },
+                      { id: 2, value: "status:close" },
+                    ],
+                  },
+                  {
+                    view: "button",
+                    label: "Refresh",
+                    css: "webix_primary_outline",
+                    autowidth: true,
+                    click: function () {},
                   },
                 ],
               },
@@ -174,7 +198,7 @@ export default class TaskPage extends JetView {
                   },
                   {
                     id: "column_name",
-                    header: ["Status", { content: "textFilter" }],
+                    header: ["Progress", { content: "textFilter" }],
                   },
                   {
                     id: "assignee_name",

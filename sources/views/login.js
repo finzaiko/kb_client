@@ -4,15 +4,13 @@ import { getScreenSize } from "../helpers/ui";
 
 export default class LoginView extends JetView {
   config() {
-
     function uiWide(_this) {
       return {
-
         cols: [
           {},
           {
-
             localId: "login:top",
+            css: "z_login_panel",
             rows: [
               {},
               {
@@ -22,7 +20,7 @@ export default class LoginView extends JetView {
                 css: "z_login_app_name",
               },
               {
-                css: "z_login_panel",
+                css: "z_login_form",
                 view: "form",
                 localId: "login:form",
                 width: 400,
@@ -34,7 +32,6 @@ export default class LoginView extends JetView {
                     name: "login",
                     label: "User Name",
                     labelPosition: "top",
-                    value: "arifin2",
                   },
                   {
                     view: "text",
@@ -42,7 +39,6 @@ export default class LoginView extends JetView {
                     name: "pass",
                     label: "Password",
                     labelPosition: "top",
-                    value: "arifin123",
                   },
                   {
                     view: "button",
@@ -69,6 +65,7 @@ export default class LoginView extends JetView {
       webix.ui.fullScreen();
 
       return {
+        localId: "login:top",
         css: "z_app_login_panel",
         rows: [
           {},
@@ -83,6 +80,7 @@ export default class LoginView extends JetView {
             localId: "login:form",
             borderless: false,
             margin: 10,
+            css: "z_login_form",
             rows: [
               {
                 view: "text",
@@ -127,15 +125,27 @@ export default class LoginView extends JetView {
     const form = this.$$("login:form");
     const ui = this.$$("login:top");
 
+    webix.extend(form, webix.ProgressBar);
+    form.disable();
+    form.showProgress();
+
     if (form.validate()) {
       const data = form.getValues();
-      user.login(data.login, data.pass).catch(function () {
-        webix.html.removeCss(ui.$view, "invalid_login");
-        form.elements.pass.focus();
-        webix.delay(function () {
-          webix.html.addCss(ui.$view, "invalid_login");
+      user
+        .login(data.login, data.pass)
+        .catch(function () {
+          webix.html.removeCss(ui.$view, "invalid_login");
+          form.elements.pass.focus();
+          webix.delay(function () {
+            webix.html.addCss(ui.$view, "invalid_login");
+            form.enable();
+            form.hideProgress();
+          });
+        })
+        .finally((_) => {
+          form.enable();
+          form.hideProgress();
         });
-      });
     }
   }
 }

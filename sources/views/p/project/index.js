@@ -76,7 +76,7 @@ export default class ProjectPage extends JetView {
           toolbar,
           {
             id: prefix + "empty",
-            template: "<div style='margin-top:50%;text-align:center;'>Please select project</div>",
+            template: "<div style='margin-top:140px;text-align:center;'>Please select project</div>",
           },
         ],
       };
