@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint sources/",
     "build": "webpack --env production",
-    "buildconf": "webpack --env production --env endpoint=$npm_config_endpoint",
+    "buildconf": "webpack --env production --env endpoint=$npm_config_endpoint && cp codebase/* www/",
     "module": "webpack --env production --env module",
     "standalone": "webpack --env production --env module --env standalone",
     "start": "webpack-dev-server --open"
@@ -27,6 +27,7 @@
     "@babel/preset-env": "^7.16.0",
     "@capacitor/cli": "^4.6.2",
     "babel-loader": "^8.2.3",
+    "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.5.0",
     "eslint": "^8.1.0",
     "file-loader": "^6.2.0",
@@ -37,6 +38,7 @@
     "url-loader": "^4.1.1",
     "webpack": "^5.61.0",
     "webpack-cli": "^4.9.1",
+    "webpack-copy-bundle": "^0.6.0",
     "webpack-dev-server": "^4.4.0"
   },
   "dependencies": {

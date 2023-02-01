@@ -115,7 +115,8 @@ function clearComments() {
   commentEd.value = "";
   $$(prefix + "comment_submit_panel").hide();
   commentEd.style.height = "40px";
-  commentViewId.refresh();
+  // commentViewId.refresh();
+  commentViewId.resize();
   stateComment.dataSelected = {};
 }
 
@@ -453,29 +454,36 @@ export default class TaskDetailMobile extends JetView {
             { width: 10, css: { background: "white" } },
           ],
         },
+        // {
+        //   view: "template",
+        //   type: "clean",
+        //   autoheight: true,
+        //   id: prefix + "comment_view_panel",
+        //   css: "comment_view_panel",
+        //   template: function (obj) {
+        //     return `<div class='comment_textarea_panel'><textarea class="autosize comment_textarea" placeholder="Type here.."></textarea></div>`;
+        //   },
+        // },
         {
-          view: "template",
-          type: "clean",
-          autoheight: true,
-          id: prefix + "comment_view_panel",
-          css: "comment_view_panel",
-          template: function (obj) {
-            return `<div class='comment_textarea_panel'><textarea class="autosize comment_textarea" placeholder="Type here.."></textarea></div>`;
-          },
-        },
-        {
-          padding: 10,
-          css: { background: "#fff" },
-          id: prefix + "comment_submit_panel",
-          hidden: true,
-          rows: [
+          cols: [
             {
-              cols: [
+              view: "template",
+              type: "clean",
+              autoheight: true,
+              id: prefix + "comment_view_panel",
+              css: "comment_view_panel",
+              template: function (obj) {
+                return `<div class='comment_textarea_panel'><textarea class="autosize comment_textarea" placeholder="Type here.."></textarea></div>`;
+              },
+            },
+            {
+              id: prefix + "comment_submit_panel",
+              rows: [
+                {},
                 {
-                  view: "button",
-                  label: "Submit",
-                  autowidth: true,
-                  css: "webix_primary",
+                  view: "icon",
+                  icon: "mdi mdi-send",
+                  css: "z_mdi_color_primary",
                   click: function () {
                     const commentViewId = $$(
                       prefix + "comment_view_panel"
@@ -500,7 +508,7 @@ export default class TaskDetailMobile extends JetView {
                         });
                         loadComments();
                         clearComments();
-                        $$(prefix + "cancel_edit_comment").hide();
+                        // $$(prefix + "cancel_edit_comment").hide();
                         taskPanelId.hideProgress();
                         taskPanelId.enable();
                       });
@@ -521,34 +529,104 @@ export default class TaskDetailMobile extends JetView {
                         });
                         loadComments();
                         clearComments();
-                        $$(prefix + "cancel_edit_comment").hide();
+                        // $$(prefix + "cancel_edit_comment").hide();
                         taskPanelId.hideProgress();
                         taskPanelId.enable();
                       });
                     }
-                  },
+                  }
                 },
-                {
-                  view: "button",
-                  label: "Cancel",
-                  id: prefix + "cancel_edit_comment",
-                  hidden: true,
-                  autowidth: true,
-                  click: function () {
-                    stateComment.dataSelected = {};
-                    const commentViewId = $$(
-                      prefix + "comment_view_panel"
-                    ).getNode();
-                    commentViewId.querySelector("textarea").value = "";
-                    this.hide();
-                  },
-                },
-                {},
               ],
             },
-            // { height: 20 },
+            { width: 14 },
           ],
         },
+        // {
+        //   padding: 10,
+        //   css: { background: "#fff" },
+        //   id: prefix + "comment_submit_panel",
+        //   hidden: true,
+        //   rows: [
+        //     {
+        //       cols: [
+        //         {
+        //           view: "button",
+        //           label: "Submit",
+        //           autowidth: true,
+        //           css: "webix_primary",
+        //           click: function () {
+        //             const commentViewId = $$(
+        //               prefix + "comment_view_panel"
+        //             ).getNode();
+        //             const commentValue =
+        //               commentViewId.querySelector("textarea").value;
+
+        //             const obj = stateComment.dataSelected;
+        //             if (
+        //               Object.keys(obj).length !== 0 &&
+        //               obj.constructor === Object
+        //             ) {
+        //               const taskPanelId = $$(prefix + "task_view_panel");
+        //               webix.extend(taskPanelId, webix.ProgressBar);
+        //               taskPanelId.showProgress();
+        //               taskPanelId.disable();
+
+        //               updateComment(obj.id, commentValue).then((_) => {
+        //                 webix.message({
+        //                   text: "Comment updated",
+        //                   type: "success",
+        //                 });
+        //                 loadComments();
+        //                 clearComments();
+        //                 $$(prefix + "cancel_edit_comment").hide();
+        //                 taskPanelId.hideProgress();
+        //                 taskPanelId.enable();
+        //               });
+        //             } else {
+        //               const taskPanelId = $$(prefix + "task_view_panel");
+        //               webix.extend(taskPanelId, webix.ProgressBar);
+        //               taskPanelId.showProgress();
+        //               taskPanelId.disable();
+
+        //               createComment(
+        //                 state.selId,
+        //                 userProfile.userId,
+        //                 commentValue
+        //               ).then((r) => {
+        //                 webix.message({
+        //                   text: "Comment saved",
+        //                   type: "success",
+        //                 });
+        //                 loadComments();
+        //                 clearComments();
+        //                 $$(prefix + "cancel_edit_comment").hide();
+        //                 taskPanelId.hideProgress();
+        //                 taskPanelId.enable();
+        //               });
+        //             }
+        //           },
+        //         },
+        //         {
+        //           view: "button",
+        //           label: "Cancel",
+        //           id: prefix + "cancel_edit_comment",
+        //           hidden: true,
+        //           autowidth: true,
+        //           click: function () {
+        //             stateComment.dataSelected = {};
+        //             const commentViewId = $$(
+        //               prefix + "comment_view_panel"
+        //             ).getNode();
+        //             commentViewId.querySelector("textarea").value = "";
+        //             this.hide();
+        //           },
+        //         },
+        //         {},
+        //       ],
+        //     },
+        //     // { height: 20 },
+        //   ],
+        // },
         // end comment text
         {
           id: prefix + "comment_list",
@@ -633,6 +711,7 @@ export default class TaskDetailMobile extends JetView {
 
     // auto resize comment text
     const element = document.querySelector(".autosize");
+
     element.addEventListener("input", () => {
       element.style.height = "40px";
       if (element.clientHeight < element.scrollHeight) {

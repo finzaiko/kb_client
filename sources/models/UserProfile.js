@@ -9,16 +9,18 @@ export let userProfile = {
   email: "",
 };
 
-// const parseJwt = (token) => {
-//   try {
-//     return JSON.parse(atob(token.split(".")[1]));
-//   } catch (e) {
-//     return null;
-//   }
-// };
-
 export const getUserEncoded = () => {
   return userProfile.authEncoded || webix.storage.cookie.get(AUTH_USER);
+};
+
+export const getUserDecoded = () => {
+  console.log("getUserEncoded() type", typeof getUserEncoded());
+  const userStorage = getUserEncoded();
+  if (userStorage !== null) {
+    const user = window.atob(userStorage).split(":");
+    return { login: user[0], pass: user[1] };
+  }
+  return {};
 };
 
 export const setUserProfile = (dataProfile, userEncoded) => {
@@ -33,4 +35,3 @@ export const setUserProfile = (dataProfile, userEncoded) => {
     userProfile = {};
   }
 };
-

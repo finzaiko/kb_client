@@ -64,8 +64,6 @@ async function startCamera() {
 }
 
 function captureCamera() {
-  console.log("state.isEdit", state.isEdit);
-
   let prefixThis = state.isEdit ? prefixPage : prefixForm;
   if ($$(prefixThis + "file_view_panel")) {
     $$(prefixThis + "file_view_panel").show();
@@ -230,6 +228,7 @@ function WindowForm() {
               id: prefix + "camera_start",
               type: "icon",
               icon: "mdi mdi-camera",
+              css: "z_camera_start",
               tooltip: "Use Camera",
               autowidth: true,
               click: function () {
@@ -241,7 +240,7 @@ function WindowForm() {
                 startCamera();
                 this.hide();
               },
-              css: { "padding-left": "10px", "padding-right": "10px" },
+              // css: { "padding-left": "10px", "padding-right": "10px" },
             },
             {
               view: "button",

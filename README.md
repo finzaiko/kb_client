@@ -2,6 +2,24 @@
 
 [Kanboard](https://kanboard.org/) frontend UI powered by Webix
 
+### Installation
+
+#### 1. Build app
+```
+npm run buildconf --endpoint=http://your-kanboard-endpoint.com
+```
+
+#### 2. Copy all inside `www` folder to your webserver app
+Ok done, run
+
+
+or
+
+#### Using Docker
+```
+on-progress..
+```
+
 
 ### API Modification
 
@@ -25,7 +43,7 @@ echo $container['api']->execute();
 
 #### 2. Update get task query
 
-getAll method in `kanboard/app/Model/TaskFinderModel.php`
+Change getAll method in `kanboard/app/Model/TaskFinderModel.php`
 to this to get all available joined data
 ```php
 public function getAll($project_id, $status_id = TaskModel::STATUS_OPEN)
@@ -41,8 +59,8 @@ public function getAll($project_id, $status_id = TaskModel::STATUS_OPEN)
 
 #### 3. Update get task by id query
 
-getAll method in `kanboard/app/Model/TaskFinderModel.php`
-to this to get by id available joined data
+Change getAll method in `kanboard/app/Model/TaskFinderModel.php`
+to this to get by id joined data
 ```php
 public function getById($task_id)
 {

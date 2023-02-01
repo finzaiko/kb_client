@@ -1,9 +1,42 @@
 import { JetView } from "webix-jet";
 import { APP_NAME } from "../config/config";
 import { getScreenSize } from "../helpers/ui";
+import { getUserDecoded } from "../models/UserProfile";
 
 export default class LoginView extends JetView {
   config() {
+    function beforeLogin(_this) {
+      let winUI = {
+        view: "window",
+        fullscreen: true,
+        borderless: true,
+        css: "z_win_login_loading",
+        head: false,
+        type: "clean",
+        body: {
+          template: `
+        <div class='z_loading_panel'>
+          <div class='z_loading_app_name'>${APP_NAME}</div>
+          <div>Loading..</div>
+        </div>
+        `,
+        },
+        on: {
+          onShow() {
+            const user = getUserDecoded();
+            setTimeout(() => {
+              _this.$$("login:form").setValues(user);
+              _this.do_login();
+            }, 700);
+            setTimeout(() => {
+              this.close();
+            }, 1000);
+          },
+        },
+      };
+      webix.ui(winUI).show();
+    }
+
     function uiWide(_this) {
       return {
         cols: [
@@ -112,7 +145,10 @@ export default class LoginView extends JetView {
         ],
       };
     }
-
+    const user = getUserDecoded();
+    if (Object.keys(user).length !== 0) {
+      beforeLogin(this);
+    }
     return getScreenSize() == "wide" ? uiWide(this) : uiSmall(this);
   }
 
