@@ -1,4 +1,5 @@
 import "./styles/app.css";
+import 'animate.css';
 import { JetApp, EmptyRouter, HashRouter, plugins } from "webix-jet";
 import session from "./models/session";
 import { getScreenSize } from "./helpers/ui";
@@ -38,6 +39,28 @@ webix.protoUI(
   webix.ui.template
 );
 
+webix.protoUI(
+  {
+    name: "slideUpWindow",
+    $init: function () {
+      this.$ready.push(function () {
+        this.attachEvent("onShow", function () {
+          const boxes = document.querySelectorAll("body > div.webix_modal");
+          boxes.forEach((box) => {
+            box.style.backgroundColor = "#FFF";
+          });
+          this.$view.className =
+            this.$view.className + " animate__animated animate__slideInUp"; // animate__fadeInDown
+        });
+        this.attachEvent("onHide", function () {
+          this.$view.style.display = "block";
+          this.$view.className += " animate__slideOutDown";
+        });
+      });
+    },
+  },
+  webix.ui.window
+);
 export default class MyApp extends JetApp {
   constructor(config) {
     console.log("getScreenSize()", getScreenSize());

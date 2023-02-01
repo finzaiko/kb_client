@@ -69,6 +69,52 @@ export default class TaskPage extends JetView {
             id: prefix + "navbar",
           },
           {},
+          {
+            view: "icon",
+            icon: "mdi mdi-dots-vertical",
+            click: function () {
+              return; // test
+              webix
+                .ui({
+                  view: "slideUpWindow",
+                  height: 250,
+                  width: window.innerWidth,
+                  position: function (state) {
+                    state.top = state.maxHeight - state.height;
+                  },
+                  modal: true,
+                  head: {
+                    view: "toolbar",
+                    cols: [
+                      { width: 4 },
+                      { view: "label", label: "Filter.." },
+                      {
+                        view: "icon",
+                        icon: "mdi mdi-close",
+                        tooltip: "Close Me",
+                        click: function () {
+                          this.getParentView().getParentView().close();
+                        },
+                      },
+                    ],
+                  },
+                  body: {
+                    template: "Some text",
+                  },
+                  on: {
+                    onShow: function () {
+                      const _this = this;
+                      const modal = document.querySelector("div.webix_modal");
+                      modal.addEventListener("click", function (e) {
+                        _this.close();
+                      });
+                    },
+                  },
+                })
+                .show();
+            },
+          },
+          { width: 10 },
         ],
       };
 
@@ -86,13 +132,15 @@ export default class TaskPage extends JetView {
           {
             id: "name",
             template: function (obj, common) {
-              return `<div class='task_item'><span class='task_item_title'>${
-                obj.title
-              }</span><br><span class='task_item_desc'>${obj.description}</span>
-              <span class='task_item_trailing'>${timeAgo.format(
-                obj.date_modification * 1000,
-                "mini"
-              )}</span>
+              return `<div class='task_item'>
+                <span class='task_item_title'>${obj.title}</span>
+                <span class='task_item_creator'>(${obj.assignee_name})</span>
+                <br>
+                  <span class='task_item_desc'>${obj.description}</span>
+                  <span class='task_item_trailing'>${timeAgo.format(
+                    obj.date_modification * 1000,
+                    "mini"
+                  )}</span>
               </div>`;
             },
             fillspace: true,
@@ -151,7 +199,6 @@ export default class TaskPage extends JetView {
                       this.$scope.show(
                         "p.task.add?project_id=" + stateProject.selId
                       );
-                      // state.scope.show("app/p.task.add?project_id=" + state.selId);
                     },
                   },
                   {
@@ -211,9 +258,6 @@ export default class TaskPage extends JetView {
                     width: 150,
                     template: function (obj, common) {
                       return getDateFormatted(obj.date_modification);
-                      // const dateVal = new Date(obj.date_modification).toLocaleDateString('en-US');
-                      // const unixEpochTimeMS = obj.date_modification * 1000;
-                      // return timeAgo.format(obj.date_modification * 1000, "mini")
                     },
                   },
                 ],
@@ -235,19 +279,10 @@ export default class TaskPage extends JetView {
       };
     }
 
-    // return {
-    //   template: "test"
-    // }
-    // return uiWide();
     return getScreenSize() == "wide" ? uiWide() : uiSmall(this);
   }
   init(view) {}
-  // urlChange(_, url) {
-  //   // state.selId = url[0].params.id;
-  //   stateProject.selId = url[0].params.project_id;
-  // }
   async urlChange(_, url) {
-    console.log("onchage");
     stateProject.selId = url[0].params.project_id;
     // state.selId = url[0].params.project_id;
 
@@ -282,10 +317,7 @@ export default class TaskPage extends JetView {
   }
 
   async ready(view, url) {
-    // state.selId = url[0].params.id;
     stateProject.selId = url[0].params.project_id;
-    console.log("stateProject.selId", stateProject.selId);
-
     if (getScreenSize() == "wide") {
       if (!stateProject.selId) {
         this.$$(prefix + "empty").show();

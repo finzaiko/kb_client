@@ -1,7 +1,37 @@
 import { JetView } from "webix-jet";
-import { imgThumbTemplate, state } from "../../../models/Task";
+import { imgThumbTemplate, removeFile, state } from "../../../models/Task";
+import { loadFiles } from "./detail";
 
 const prefix = state.prefix + "_img_preview_";
+
+function removeFileById(selId) {
+  webix.confirm({
+    ok: "Yes",
+    cancel: "No",
+    text: "Are you sure to delete ?",
+    callback: function (result) {
+      if (result) {
+        const winId = $$(prefix + "win");
+        webix.extend(winId, webix.ProgressBar);
+        winId.showProgress();
+        winId.disable();
+        removeFile(selId).then((_) => {
+          webix.message({
+            text: "File deleted",
+            type: "success",
+          });
+          loadFiles().then((_) => {});
+          winId.hideProgress();
+          winId.enable();
+          setTimeout(() => {
+            winId.close();
+          }, 500);
+        });
+      }
+    },
+  });
+}
+
 function WindowForm() {
   const winId = prefix + "win";
   return {
@@ -11,7 +41,17 @@ function WindowForm() {
       view: "toolbar",
       cols: [
         { width: 4 },
-        { view: "label", label: "Image View" },
+        { view: "label", label: "Image View", width: 100 },
+        {
+          view: "icon",
+          icon: "mdi mdi-delete-outline",
+          css: "z_mdi_color_danger",
+          tooltip: "Delete current view",
+          click: function () {
+            removeFileById($$("imageList").getSelectedId());
+          },
+        },
+        {},
         {
           view: "icon",
           icon: "mdi mdi-close",

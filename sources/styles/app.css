@@ -561,6 +561,11 @@ p#img_screenshot_empty {
     color: #fff;
 }
 
+.z_camera_start {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 .z_camera_start button {
     text-align: center;
     vertical-align: middle;
@@ -594,4 +599,14 @@ p#img_screenshot_empty {
 
 .z_mdi_color_primary span.webix_icon{
     color: var(--base-primary-bg) !important;
+}
+
+.z_mdi_color_danger span.webix_icon {
+    color: red;
+}
+
+.task_item_creator{
+    font-style: italic;
+    font-size: 12px;
+    color:  grey;
 }

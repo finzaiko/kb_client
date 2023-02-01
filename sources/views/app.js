@@ -135,7 +135,7 @@ export default class AppView extends JetView {
           },
           {
             value:
-              "<span class='webix_icon mdi mdi-view-dashboard'></span>&nbsp;Report",
+              "<span class='webix_icon mdi mdi-poll'></span>&nbsp;Report",
             id: "p.report",
           },
         ],

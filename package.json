@@ -45,6 +45,7 @@
     "@capacitor/android": "^4.6.2",
     "@capacitor/core": "^4.6.2",
     "@mdi/font": "^7.1.96",
+    "animate.css": "^4.1.1",
     "javascript-time-ago": "^2.5.9",
     "webix": "^10.0.1",
     "webix-jet": "^2.1.3"

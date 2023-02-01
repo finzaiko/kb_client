@@ -474,4 +474,12 @@ p#img_screenshot_empty {
 .z_mdi_color_primary span.webix_icon {
   color: var(--base-primary-bg) !important;
 }
+.z_mdi_color_danger span.webix_icon {
+  color: red;
+}
+.task_item_creator {
+  font-style: italic;
+  font-size: 12px;
+  color: grey;
+}
 

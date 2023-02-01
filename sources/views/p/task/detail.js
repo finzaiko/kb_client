@@ -74,13 +74,18 @@ function removeFileById(selId) {
           loadFiles().then((_) => {});
           taskPanelId.hideProgress();
           taskPanelId.enable();
+
+          const winPhotoId = $$(state.prefix + "_img_preview_" + "win");
+          if (winPhotoId) {
+            setTimeout(() => winPhotoId.close(), 500);
+          }
         });
       }
     },
   });
 }
 
-async function loadFiles() {
+export async function loadFiles() {
   const images = await getFileByTaskId(state.selId);
   const fileId = $$(prefix + "file_view");
   if (images.length > 0) {
@@ -404,13 +409,14 @@ export default class TaskDetailMobile extends JetView {
                 height: 100,
                 width: "auto",
               },
-              template: `<div style='background-image:url(${BACKEND_URL}/data/files/thumbnails/#path#?${Date.now()});height:100px;background-repeat:no-repeat;background-position:center;background-size:contain;object-fit: contain;position: relative;'>
-              <div class='item-click' style='width:85%;height:100%;float:left;'></div>
-              <div class='webix_icon mdi mdi-close remove-file-icon' style='float:right;width:5%;height:20px;z-index:1000;padding:10px' title='Delete'></div>
+              template: `<div class='item-click' style='background-image:url(${BACKEND_URL}/data/files/thumbnails/#path#?${Date.now()});height:100px;background-repeat:no-repeat;background-position:center;background-size:contain;object-fit: contain;position: relative;'>
+                  <div class='webix_icon mdi mdi-close remove-file-icon' style='float:right;height:20px;z-index:1000;padding:10px;position:obsolete;' title='Delete'></div>
               </div>
               `,
               onClick: {
                 "item-click": function (e, id, node) {
+                  // let element = document.querySelector(".remove-file-icon");
+                  // e.stopPropagation();
                   e.preventDefault();
                   this.$scope.ui(TaskPhotoPreview).show();
                 },
@@ -454,17 +460,8 @@ export default class TaskDetailMobile extends JetView {
             { width: 10, css: { background: "white" } },
           ],
         },
-        // {
-        //   view: "template",
-        //   type: "clean",
-        //   autoheight: true,
-        //   id: prefix + "comment_view_panel",
-        //   css: "comment_view_panel",
-        //   template: function (obj) {
-        //     return `<div class='comment_textarea_panel'><textarea class="autosize comment_textarea" placeholder="Type here.."></textarea></div>`;
-        //   },
-        // },
         {
+          css: { background: "white" },
           cols: [
             {
               view: "template",
@@ -534,7 +531,7 @@ export default class TaskDetailMobile extends JetView {
                         taskPanelId.enable();
                       });
                     }
-                  }
+                  },
                 },
               ],
             },
