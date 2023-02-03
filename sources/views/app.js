@@ -24,8 +24,38 @@ export default class AppView extends JetView {
           {
             view: "icon",
             icon: "mdi mdi-dots-vertical",
-            click: function () {
-              this.$scope.ui(ProfileWindow).show();
+            // click: function () {
+            //   this.$scope.ui(ProfileWindow).show();
+            // },
+            popup: {
+              view: "popup",
+              width: 120,
+              body: {
+                view: "list",
+                data: [
+                  {
+                    id: "_sname",
+                    name: "name",
+                    icon: "mdi mdi-magnify",
+                    tooltip: "Search by name",
+                  },
+                  {
+                    id: "_scontent",
+                    name: "content",
+                    icon: "mdi mdi-text-search",
+                    tooltip: "Search by content",
+                  },
+                ],
+                template: "<span class='#icon#'></span> #name#",
+                autoheight: true,
+                select: true,
+                on: {
+                  onItemClick: function (id) {
+                    console.log('id',id);
+
+                  },
+                },
+              },
             },
           },
         ],

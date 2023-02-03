@@ -1,7 +1,7 @@
 import { JetView } from "webix-jet";
 import { getColumnByProjectId, getMyTask, state } from "../../../models/Task";
 import { getProjectById, state as stateProject } from "../../../models/Project";
-import { getDateFormatted, getScreenSize } from "../../../helpers/ui";
+import { getDateFormatted, getScreenSize, showError } from "../../../helpers/ui";
 import { FloatingButton } from "../../../helpers/component";
 import { mergeByKey } from "../../../helpers/api";
 
@@ -47,6 +47,10 @@ function time2TimeAgo(ts) {
   }
 }
 
+async function reloadTask() {
+  const tasks = await getMyTask(stateProject.selId);
+  $$(prefix + "table").parse(tasks, "json", true);
+}
 export default class TaskPage extends JetView {
   config() {
     _scope = this;
@@ -72,46 +76,76 @@ export default class TaskPage extends JetView {
           {
             view: "icon",
             icon: "mdi mdi-dots-vertical",
-            click: function () {
-              return; // test
-              webix
-                .ui({
-                  view: "slideUpWindow",
-                  height: 250,
-                  width: window.innerWidth,
-                  position: function (state) {
-                    state.top = state.maxHeight - state.height;
+            // click: function () {
+            //   return; // test
+            //   webix
+            //     .ui({
+            //       view: "slideUpWindow",
+            //       height: 250,
+            //       width: window.innerWidth,
+            //       position: function (state) {
+            //         state.top = state.maxHeight - state.height;
+            //       },
+            //       modal: true,
+            //       head: {
+            //         view: "toolbar",
+            //         cols: [
+            //           { width: 4 },
+            //           { view: "label", label: "Filter.." },
+            //           {
+            //             view: "icon",
+            //             icon: "mdi mdi-close",
+            //             tooltip: "Close Me",
+            //             click: function () {
+            //               this.getParentView().getParentView().close();
+            //             },
+            //           },
+            //         ],
+            //       },
+            //       body: {
+            //         template: "Some text",
+            //       },
+            //       on: {
+            //         onShow: function () {
+            //           const _this = this;
+            //           const modal = document.querySelector("div.webix_modal");
+            //           modal.addEventListener("click", function (e) {
+            //             _this.close();
+            //           });
+            //         },
+            //       },
+            //     })
+            //     .show();
+            // },
+            popup: {
+              view: "popup",
+              width: 120,
+              body: {
+                view: "list",
+                data: [
+                  {
+                    id: "_sname",
+                    name: "name",
+                    icon: "mdi mdi-magnify",
+                    tooltip: "Search by name",
                   },
-                  modal: true,
-                  head: {
-                    view: "toolbar",
-                    cols: [
-                      { width: 4 },
-                      { view: "label", label: "Filter.." },
-                      {
-                        view: "icon",
-                        icon: "mdi mdi-close",
-                        tooltip: "Close Me",
-                        click: function () {
-                          this.getParentView().getParentView().close();
-                        },
-                      },
-                    ],
+                  {
+                    id: "_scontent",
+                    name: "content",
+                    icon: "mdi mdi-text-search",
+                    tooltip: "Search by content",
                   },
-                  body: {
-                    template: "Some text",
+                ],
+                template: "<span class='#icon#'></span> #name#",
+                autoheight: true,
+                select: true,
+                on: {
+                  onItemClick: function (id) {
+                    console.log('id',id);
+
                   },
-                  on: {
-                    onShow: function () {
-                      const _this = this;
-                      const modal = document.querySelector("div.webix_modal");
-                      modal.addEventListener("click", function (e) {
-                        _this.close();
-                      });
-                    },
-                  },
-                })
-                .show();
+                },
+              },
             },
           },
           { width: 10 },
@@ -224,7 +258,9 @@ export default class TaskPage extends JetView {
                     label: "Refresh",
                     css: "webix_primary_outline",
                     autowidth: true,
-                    click: function () {},
+                    click: function () {
+                      reloadTask();
+                    },
                   },
                 ],
               },
@@ -262,6 +298,15 @@ export default class TaskPage extends JetView {
                   },
                 ],
                 on: {
+                  onLoadError: function(text, xml, xhr) {
+                    showError(xhr);
+                  },
+                  onBeforeLoad: function() {
+                    this.showOverlay("Loading...");
+                  },
+                  onAfterLoad: function() {
+                    this.hideOverlay();
+                  },
                   onItemClick: function (id) {
                     // return;
                     this.$scope.show(

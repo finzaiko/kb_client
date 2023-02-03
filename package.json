@@ -11,7 +11,7 @@
     "buildconf": "webpack --env production --env endpoint=$npm_config_endpoint && cp codebase/* www/",
     "module": "webpack --env production --env module",
     "standalone": "webpack --env production --env module --env standalone",
-    "start": "webpack-dev-server --open"
+    "start": "webpack-dev-server --open --port 9595"
   },
   "keywords": [
     "webix",

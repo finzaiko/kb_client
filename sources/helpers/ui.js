@@ -37,10 +37,10 @@ export const getScreenSize = () => {
   576px, 768px, 992px, and 1200px
   */
 
- let appSize = "wide";
+  let appSize = "wide";
 
- if (isMobileDevice()) {
-   appSize = "small";
+  if (isMobileDevice()) {
+    appSize = "small";
   } else {
     // var mql = window.matchMedia("(min-width: 480px)");
     appSize = window.innerWidth < 700 ? "small" : "wide";
@@ -52,4 +52,15 @@ export const getScreenSize = () => {
 export function isInt(value) {
   let x = parseFloat(value);
   return !isNaN(value) && (x | 0) === x;
+}
+
+export function showError(xhr) {
+  console.log('xhr',xhr);
+
+  webix.alert({
+    title: "Server Error",
+    type: "alert-error",
+    width: "200px",
+    text: `${xhr.status}`,
+  });
 }

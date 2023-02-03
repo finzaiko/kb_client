@@ -175,15 +175,16 @@ async function loadComments() {
 }
 
 function backToIcon(_this) {
-  return getScreenSize() == "wide"
-    ? { width: 1 }
-    : {
-        view: "icon",
-        icon: "mdi mdi-arrow-left",
-        click: () => {
-          backToGrid(_this);
-        },
-      };
+  // return getScreenSize() == "wide"
+  //   ? { width: 1 }
+  //   :
+  return {
+    view: "icon",
+    icon: "mdi mdi-arrow-left",
+    click: () => {
+      backToGrid(_this);
+    },
+  };
 }
 
 export default class TaskDetailMobile extends JetView {
@@ -410,7 +411,7 @@ export default class TaskDetailMobile extends JetView {
                 width: "auto",
               },
               template: `<div class='item-click' style='background-image:url(${BACKEND_URL}/data/files/thumbnails/#path#?${Date.now()});height:100px;background-repeat:no-repeat;background-position:center;background-size:contain;object-fit: contain;position: relative;'>
-                  <div class='webix_icon mdi mdi-close remove-file-icon' style='float:right;height:20px;z-index:1000;padding:10px;position:obsolete;' title='Delete'></div>
+                  <div class='webix_icon mdi mdi-close remove-file-icon' style='float:right;height:20px;z-index:1000;padding:1px;position:obsolete;' title='Delete'></div>
               </div>
               `,
               onClick: {
