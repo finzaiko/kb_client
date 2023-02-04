@@ -23,36 +23,35 @@ export default class AppView extends JetView {
           },
           {
             view: "icon",
+            id:"app:setting",
             icon: "mdi mdi-dots-vertical",
-            // click: function () {
-            //   this.$scope.ui(ProfileWindow).show();
-            // },
             popup: {
               view: "popup",
-              width: 120,
+              width: 150,
               body: {
                 view: "list",
                 data: [
                   {
-                    id: "_sname",
-                    name: "name",
-                    icon: "mdi mdi-magnify",
-                    tooltip: "Search by name",
+                    id: "app_install",
+                    value: "Install this App",
+                    icon: "mdi mdi-home",
                   },
                   {
-                    id: "_scontent",
-                    name: "content",
-                    icon: "mdi mdi-text-search",
-                    tooltip: "Search by content",
+                    id: "profile",
+                    value: "Profile",
+                    icon: "mdi mdi-account",
                   },
                 ],
-                template: "<span class='#icon#'></span> #name#",
+                template: "<span class='#icon#'></span> #value#",
                 autoheight: true,
                 select: true,
                 on: {
                   onItemClick: function (id) {
-                    console.log('id',id);
-
+                    if (id == "app_install") {
+                    } else if (id == "profile") {
+                      $$("app:setting").$scope.ui(ProfileWindow).show();
+                    }
+                    this.getParentView().hide();
                   },
                 },
               },
@@ -164,8 +163,7 @@ export default class AppView extends JetView {
             id: "p.project",
           },
           {
-            value:
-              "<span class='webix_icon mdi mdi-poll'></span>&nbsp;Report",
+            value: "<span class='webix_icon mdi mdi-poll'></span>&nbsp;Report",
             id: "p.report",
           },
         ],

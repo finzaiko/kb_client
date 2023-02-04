@@ -22,11 +22,47 @@ export default class ProjectPage extends JetView {
             id: "mobile_navbar",
           },
           {},
+          // {
+          //   view: "icon",
+          //   icon: "mdi mdi-dots-vertical",
+          //   click: function () {
+          //     this.$scope.ui(ProfileWindow).show();
+          //   },
+          // },
           {
             view: "icon",
+            id:"app:setting",
             icon: "mdi mdi-dots-vertical",
-            click: function () {
-              this.$scope.ui(ProfileWindow).show();
+            popup: {
+              view: "popup",
+              width: 150,
+              body: {
+                view: "list",
+                data: [
+                  {
+                    id: "app_install",
+                    value: "Install this App",
+                    icon: "mdi mdi-home",
+                  },
+                  {
+                    id: "profile",
+                    value: "Profile",
+                    icon: "mdi mdi-account",
+                  },
+                ],
+                template: "<span class='#icon#'></span> #value#",
+                autoheight: true,
+                select: true,
+                on: {
+                  onItemClick: function (id) {
+                    if (id == "app_install") {
+                    } else if (id == "profile") {
+                      $$("app:setting").$scope.ui(ProfileWindow).show();
+                      this.getParentView().hide();
+                    }
+                  },
+                },
+              },
             },
           },
           { width: 10 },

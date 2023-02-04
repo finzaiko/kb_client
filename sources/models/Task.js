@@ -144,6 +144,29 @@ export function getMyTask(projectId) {
     });
 }
 
+export function searchTask(projectId, queryString) {
+  const params = {
+    jsonrpc: "2.0",
+    method: "searchTasks",
+    id: 1468511716,
+    params: {
+      project_id: projectId,
+      query: queryString,
+    },
+  };
+
+  return webix
+    .ajax()
+    .headers({
+      "Content-Type": "application/json",
+      Authorization: `Basic ${getUserEncoded()}`,
+    })
+    .post(API_URL, params)
+    .then((r) => {
+      return r.json().result;
+    });
+}
+
 export function getTaskById(taskId) {
   const params = {
     jsonrpc: "2.0",

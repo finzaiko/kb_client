@@ -1,7 +1,16 @@
 import { JetView } from "webix-jet";
-import { getColumnByProjectId, getMyTask, state } from "../../../models/Task";
+import {
+  getColumnByProjectId,
+  getMyTask,
+  searchTask,
+  state,
+} from "../../../models/Task";
 import { getProjectById, state as stateProject } from "../../../models/Project";
-import { getDateFormatted, getScreenSize, showError } from "../../../helpers/ui";
+import {
+  getDateFormatted,
+  getScreenSize,
+  showError,
+} from "../../../helpers/ui";
 import { FloatingButton } from "../../../helpers/component";
 import { mergeByKey } from "../../../helpers/api";
 
@@ -48,9 +57,28 @@ function time2TimeAgo(ts) {
 }
 
 async function reloadTask() {
+  const taskTblId = $$(prefix + "table");
+  webix.extend(taskTblId, webix.ProgressBar);
+  taskTblId.disable();
+  taskTblId.showProgress();
+
   const tasks = await getMyTask(stateProject.selId);
   $$(prefix + "table").parse(tasks, "json", true);
+  taskTblId.enable();
+  taskTblId.hideProgress();
 }
+
+async function doSearchTask(queryString) {
+  const taskTblId = $$(prefix + "table");
+  webix.extend(taskTblId, webix.ProgressBar);
+  taskTblId.disable();
+  taskTblId.showProgress();
+  const tasks = await searchTask(stateProject.selId, queryString);
+  $$(prefix + "table").parse(tasks, "json", true);
+  taskTblId.enable();
+  taskTblId.hideProgress();
+}
+
 export default class TaskPage extends JetView {
   config() {
     _scope = this;
@@ -76,76 +104,110 @@ export default class TaskPage extends JetView {
           {
             view: "icon",
             icon: "mdi mdi-dots-vertical",
-            // click: function () {
-            //   return; // test
-            //   webix
-            //     .ui({
-            //       view: "slideUpWindow",
-            //       height: 250,
-            //       width: window.innerWidth,
-            //       position: function (state) {
-            //         state.top = state.maxHeight - state.height;
-            //       },
-            //       modal: true,
-            //       head: {
-            //         view: "toolbar",
-            //         cols: [
-            //           { width: 4 },
-            //           { view: "label", label: "Filter.." },
-            //           {
-            //             view: "icon",
-            //             icon: "mdi mdi-close",
-            //             tooltip: "Close Me",
-            //             click: function () {
-            //               this.getParentView().getParentView().close();
-            //             },
-            //           },
-            //         ],
-            //       },
-            //       body: {
-            //         template: "Some text",
-            //       },
-            //       on: {
-            //         onShow: function () {
-            //           const _this = this;
-            //           const modal = document.querySelector("div.webix_modal");
-            //           modal.addEventListener("click", function (e) {
-            //             _this.close();
-            //           });
-            //         },
-            //       },
-            //     })
-            //     .show();
-            // },
-            popup: {
-              view: "popup",
-              width: 120,
-              body: {
-                view: "list",
-                data: [
-                  {
-                    id: "_sname",
-                    name: "name",
-                    icon: "mdi mdi-magnify",
-                    tooltip: "Search by name",
+            click: function () {
+              webix
+                .ui({
+                  view: "slideUpWindow",
+                  position: "center",
+                  escHide: true,
+                  height: 250,
+                  width: window.innerWidth,
+                  position: function (state) {
+                    state.top = state.maxHeight - state.height;
                   },
-                  {
-                    id: "_scontent",
-                    name: "content",
-                    icon: "mdi mdi-text-search",
-                    tooltip: "Search by content",
+                  modal: true,
+                  head: {
+                    view: "toolbar",
+                    cols: [
+                      { width: 4 },
+                      { view: "label", label: "Filter.." },
+                      {
+                        view: "icon",
+                        icon: "mdi mdi-close",
+                        tooltip: "Close Me",
+                        click: function () {
+                          this.getParentView().getParentView().hide();
+                        },
+                      },
+                    ],
                   },
-                ],
-                template: "<span class='#icon#'></span> #name#",
-                autoheight: true,
-                select: true,
-                on: {
-                  onItemClick: function (id) {
-                    console.log('id',id);
-
+                  body: {
+                    padding: 10,
+                    rows: [
+                      {
+                        cols: [
+                          {
+                            view: "icon",
+                            icon: "mdi mdi-magnify",
+                          },
+                          {
+                            view: "text",
+                            placeholder: "search..",
+                            id: prefix + "filter_search",
+                            on: {
+                              onTimedKeyPress: function () {
+                                $$(prefix + "filter").setValue();
+                              },
+                            },
+                          },
+                        ],
+                      },
+                      {
+                        cols: [
+                          {
+                            view: "icon",
+                            icon: "mdi mdi-filter",
+                          },
+                          {
+                            view: "combo",
+                            placeholder: "filter..",
+                            id: prefix + "filter",
+                            options: [
+                              "status:open",
+                              "status:closed",
+                              "status:all",
+                            ],
+                            on: {
+                              onChange: function (newv) {
+                                $$(prefix + "filter_search").setValue("");
+                              },
+                            },
+                          },
+                        ],
+                      },
+                      {
+                        cols: [
+                          {},
+                          {
+                            view: "button",
+                            value: "Apply",
+                            css: "webix_primary",
+                            autowidth: true,
+                            click: function () {
+                              const val =
+                                $$(prefix + "filter_search").getValue() ||
+                                $$(prefix + "filter").getValue();
+                              if (val.length > 0) {
+                                doSearchTask(val);
+                              }
+                              this.getParentView().getParentView().getParentView().hide();
+                            },
+                          },
+                        ],
+                      },
+                    ],
                   },
-                },
-              },
+                  on: {
+                    onShow: function () {
+                      const _this = this;
+                      const modal = document.querySelector("div.webix_modal");
+                      modal.addEventListener("click", function (e) {
+                        _this.close();
+                      });
+                    },
+                  },
+                })
+                .show();
             },
           },
           { width: 10 },
@@ -167,7 +229,8 @@ export default class TaskPage extends JetView {
             id: "name",
             template: function (obj, common) {
               return `<div class='task_item'>
-                <span class='task_item_title'>${obj.title}</span>
+                <span class='task_item_title'>${obj.id} - ${obj.title}</span>
+                <span class='task_item_progress'> - ${obj.column_name}</span>
                 <span class='task_item_creator'>(${obj.assignee_name})</span>
                 <br>
                   <span class='task_item_desc'>${obj.description}</span>
@@ -237,21 +300,30 @@ export default class TaskPage extends JetView {
                   },
                   {
                     view: "text",
+                    id: prefix + "search",
                     placeholder: "Search..",
                     css: "z_text_outline",
                     width: 400,
+                    on: {
+                      onEnter: function () {
+                        doSearchTask(this.getValue());
+                      },
+                    },
                   },
                   {
                     view: "combo",
                     label: "Filter",
                     css: "z_combo_filter",
                     labelWidth: 50,
-                    value: 1,
+                    value: "status:open",
                     width: 200,
-                    options: [
-                      { id: 1, value: "status:open" },
-                      { id: 2, value: "status:close" },
-                    ],
+                    options: ["status:open", "status:closed", "status:all"],
+                    on: {
+                      onChange: function (newv, oldv) {
+                        $$(prefix + "search").setValue(newv);
+                        doSearchTask(newv);
+                      },
+                    },
                   },
                   {
                     view: "button",
@@ -269,6 +341,11 @@ export default class TaskPage extends JetView {
                 id: prefix + "table",
                 select: "row",
                 columns: [
+                  {
+                    id: "id",
+                    header: ["#", { content: "textFilter" }],
+                    adjust: true,
+                  },
                   {
                     id: "title",
                     header: ["Title", { content: "textFilter" }],
@@ -298,15 +375,20 @@ export default class TaskPage extends JetView {
                   },
                 ],
                 on: {
-                  onLoadError: function(text, xml, xhr) {
+                  onLoadError: function (text, xml, xhr) {
                     showError(xhr);
                   },
-                  onBeforeLoad: function() {
-                    this.showOverlay("Loading...");
-                  },
-                  onAfterLoad: function() {
-                    this.hideOverlay();
-                  },
+                  // onBeforeLoad: function () {
+                  //   webix.extend(this, webix.ProgressBar);
+                  //   this.disable();
+                  //   this.showProgress();
+                  // },
+                  // onAfterLoad: function () {
+                  //   setTimeout(() => {
+                  //     this.enable();
+                  //     this.hideProgress();
+                  //   }, 500);
+                  // },
                   onItemClick: function (id) {
                     // return;
                     this.$scope.show(
@@ -370,8 +452,15 @@ export default class TaskPage extends JetView {
       } else {
         this.$$(prefix + "empty").hide();
         this.$$(prefix + "panel").show();
+        const taskTblId = $$(prefix + "table");
+        webix.extend(taskTblId, webix.ProgressBar);
+        taskTblId.disable();
+        taskTblId.showProgress();
+
         const tasks = await getMyTask(stateProject.selId);
         this.$$(prefix + "table").parse(tasks, "json", true);
+        taskTblId.enable();
+        taskTblId.hideProgress();
       }
     } else {
       const taskTblId = $$(prefix + "table");

@@ -476,6 +476,7 @@ export default class TaskDetailMobile extends JetView {
             },
             {
               id: prefix + "comment_submit_panel",
+              hidden: true,
               rows: [
                 {},
                 {
@@ -539,93 +540,6 @@ export default class TaskDetailMobile extends JetView {
             { width: 14 },
           ],
         },
-        // {
-        //   padding: 10,
-        //   css: { background: "#fff" },
-        //   id: prefix + "comment_submit_panel",
-        //   hidden: true,
-        //   rows: [
-        //     {
-        //       cols: [
-        //         {
-        //           view: "button",
-        //           label: "Submit",
-        //           autowidth: true,
-        //           css: "webix_primary",
-        //           click: function () {
-        //             const commentViewId = $$(
-        //               prefix + "comment_view_panel"
-        //             ).getNode();
-        //             const commentValue =
-        //               commentViewId.querySelector("textarea").value;
-
-        //             const obj = stateComment.dataSelected;
-        //             if (
-        //               Object.keys(obj).length !== 0 &&
-        //               obj.constructor === Object
-        //             ) {
-        //               const taskPanelId = $$(prefix + "task_view_panel");
-        //               webix.extend(taskPanelId, webix.ProgressBar);
-        //               taskPanelId.showProgress();
-        //               taskPanelId.disable();
-
-        //               updateComment(obj.id, commentValue).then((_) => {
-        //                 webix.message({
-        //                   text: "Comment updated",
-        //                   type: "success",
-        //                 });
-        //                 loadComments();
-        //                 clearComments();
-        //                 $$(prefix + "cancel_edit_comment").hide();
-        //                 taskPanelId.hideProgress();
-        //                 taskPanelId.enable();
-        //               });
-        //             } else {
-        //               const taskPanelId = $$(prefix + "task_view_panel");
-        //               webix.extend(taskPanelId, webix.ProgressBar);
-        //               taskPanelId.showProgress();
-        //               taskPanelId.disable();
-
-        //               createComment(
-        //                 state.selId,
-        //                 userProfile.userId,
-        //                 commentValue
-        //               ).then((r) => {
-        //                 webix.message({
-        //                   text: "Comment saved",
-        //                   type: "success",
-        //                 });
-        //                 loadComments();
-        //                 clearComments();
-        //                 $$(prefix + "cancel_edit_comment").hide();
-        //                 taskPanelId.hideProgress();
-        //                 taskPanelId.enable();
-        //               });
-        //             }
-        //           },
-        //         },
-        //         {
-        //           view: "button",
-        //           label: "Cancel",
-        //           id: prefix + "cancel_edit_comment",
-        //           hidden: true,
-        //           autowidth: true,
-        //           click: function () {
-        //             stateComment.dataSelected = {};
-        //             const commentViewId = $$(
-        //               prefix + "comment_view_panel"
-        //             ).getNode();
-        //             commentViewId.querySelector("textarea").value = "";
-        //             this.hide();
-        //           },
-        //         },
-        //         {},
-        //       ],
-        //     },
-        //     // { height: 20 },
-        //   ],
-        // },
-        // end comment text
         {
           id: prefix + "comment_list",
           view: "template",
@@ -640,7 +554,6 @@ export default class TaskDetailMobile extends JetView {
               const commentEd = commentViewId.querySelector("textarea");
               commentEd.value = item.comment;
               commentEd.focus();
-              $$(prefix + "cancel_edit_comment").show();
               commentViewId.classList.add("flash_hightlight_comment");
               setTimeout(() => {
                 commentViewId.classList.remove("flash_hightlight_comment");

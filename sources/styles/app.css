@@ -605,6 +605,11 @@ p#img_screenshot_empty {
     color: red;
 }
 
+.task_item_progress{
+    font-size: 12px;
+    color:  grey;
+}
+
 .task_item_creator{
     font-style: italic;
     font-size: 12px;

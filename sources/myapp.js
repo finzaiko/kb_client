@@ -55,12 +55,16 @@ webix.protoUI(
         this.attachEvent("onHide", function () {
           this.$view.style.display = "block";
           this.$view.className += " animate__slideOutDown";
+          setTimeout(() => {
+            this.close();
+          }, 200);
         });
       });
     },
   },
   webix.ui.window
 );
+
 export default class MyApp extends JetApp {
   constructor(config) {
     console.log("getScreenSize()", getScreenSize());
