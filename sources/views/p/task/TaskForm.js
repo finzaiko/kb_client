@@ -128,7 +128,7 @@ export default class TaskForm extends JetView {
           label: "Description",
           name: "description",
           id: prefix + "description",
-          height: 100,
+          height: 150,
         },
         {
           type: "clean",

@@ -3,13 +3,22 @@ import { APP_NAME } from "../../../config/config";
 import { getScreenSize } from "../../../helpers/ui";
 import { removeURLParam } from "../../../helpers/url";
 import { getMyProject, state } from "../../../models/Project";
-import { getMyTask } from "../../../models/Task";
+import { installApp, state as stateSW } from "../../../models/ServiceWorker";
+
 import { ProfileWindow } from "../../profile";
 
 const prefix = state + "_page_";
 
 export default class ProjectPage extends JetView {
   config() {
+    const offlineStatus = {
+      view: "template",
+      height: 20,
+      id: "app_offline",
+      css: "app_offline_status",
+      hidden: true,
+    };
+
     function uiSmall() {
       const toolbar = {
         view: "toolbar",
@@ -22,16 +31,9 @@ export default class ProjectPage extends JetView {
             id: "mobile_navbar",
           },
           {},
-          // {
-          //   view: "icon",
-          //   icon: "mdi mdi-dots-vertical",
-          //   click: function () {
-          //     this.$scope.ui(ProfileWindow).show();
-          //   },
-          // },
           {
             view: "icon",
-            id:"app:setting",
+            id: "app:setting",
             icon: "mdi mdi-dots-vertical",
             popup: {
               view: "popup",
@@ -56,10 +58,19 @@ export default class ProjectPage extends JetView {
                 on: {
                   onItemClick: function (id) {
                     if (id == "app_install") {
+                      installApp();
+                      if (!stateSW.isReadyToInstall) {
+                        const popList = this;
+                        const arr = popList
+                          .serialize()
+                          .filter((item) => item.id !== "app_install");
+                        popList.clearAll();
+                        popList.parse(arr);
+                      }
                     } else if (id == "profile") {
                       $$("app:setting").$scope.ui(ProfileWindow).show();
-                      this.getParentView().hide();
                     }
+                    this.getParentView().hide();
                   },
                 },
               },
@@ -96,7 +107,7 @@ export default class ProjectPage extends JetView {
         },
       };
       return {
-        rows: [toolbar, projectGrid],
+        rows: [offlineStatus, toolbar, projectGrid],
       };
     }
 
@@ -112,7 +123,8 @@ export default class ProjectPage extends JetView {
           toolbar,
           {
             id: prefix + "empty",
-            template: "<div style='margin-top:140px;text-align:center;'>Please select project</div>",
+            template:
+              "<div style='margin-top:140px;text-align:center;'>Please select project</div>",
           },
         ],
       };

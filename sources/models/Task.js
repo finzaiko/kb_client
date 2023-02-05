@@ -99,7 +99,7 @@ export function updateTask(id, title, description) {
     });
 }
 
-export function deleteTask(id) {
+export function removeTask(id) {
   const params = {
     jsonrpc: "2.0",
     method: "removeTask",

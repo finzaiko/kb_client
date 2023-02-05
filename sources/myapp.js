@@ -1,9 +1,10 @@
 import "./styles/app.css";
-import 'animate.css';
+import "animate.css";
 import { JetApp, EmptyRouter, HashRouter, plugins } from "webix-jet";
 import session from "./models/session";
 import { getScreenSize } from "./helpers/ui";
 import { APP_NAME } from "./config/config";
+import { initSW } from "./models/ServiceWorker";
 
 webix.protoUI(
   {
@@ -75,7 +76,6 @@ export default class MyApp extends JetApp {
       router: BUILD_AS_MODULE ? EmptyRouter : HashRouter,
       debug: !PRODUCTION,
       name: APP_NAME,
-      // start: getScreenSize() == "wide" ? "/app/start" : "/mobile/start",
       start: "/app/p.project",
     };
 
@@ -94,5 +94,11 @@ if (!BUILD_AS_MODULE) {
     const app = new MyApp();
     // ping();
     app.render();
+
+    app.ready.then(() => {
+      /* do something */
+    });
+
+    initSW();
   });
 }

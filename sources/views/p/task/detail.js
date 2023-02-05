@@ -2,6 +2,7 @@ import { JetView } from "webix-jet";
 import {
   getFileByTaskId,
   getTaskById,
+  removeTask,
   imgTemplate,
   removeFile,
   state,
@@ -29,7 +30,7 @@ function backToGrid(_this) {
   _this.show(backRoute);
 }
 
-function removeTaskById(selId) {
+function removeTaskById(_this, selId) {
   webix.confirm({
     ok: "Yes",
     cancel: "No",
@@ -41,15 +42,16 @@ function removeTaskById(selId) {
         taskPanelId.showProgress();
         taskPanelId.disable();
 
-        removeTaskById(selId).then((_) => {
-          webix.message({
-            text: "File deleted",
-            type: "success",
-          });
-          loadFiles().then((_) => {});
-          taskPanelId.hideProgress();
-          taskPanelId.enable();
-        });
+        removeTask(selId)
+          .then((_) => {
+            webix.message({
+              text: "File deleted",
+              type: "success",
+            });
+            taskPanelId.hideProgress();
+            taskPanelId.enable();
+            backToGrid(_this);
+          })
       }
     },
   });
@@ -254,7 +256,7 @@ export default class TaskDetailMobile extends JetView {
               tooltip: "Delete",
               css: { "padding-right": "10px" },
               click: function () {
-                removeTaskById(state.selId);
+                removeTaskById(this.$scope, state.selId);
               },
             },
             {

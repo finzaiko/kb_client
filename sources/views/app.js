@@ -2,10 +2,22 @@ import { JetView } from "webix-jet";
 import { APP_NAME } from "../config/config";
 import { getScreenSize, isInt, isMobileDevice } from "../helpers/ui";
 import { getMyProject, state } from "../models/Project";
+import {
+  installApp,
+  state as stateSW,
+} from "../models/ServiceWorker";
 import { ProfileWindow } from "./profile";
 
 export default class AppView extends JetView {
   config() {
+    const offlineStatus = {
+      view: "template",
+      height: 14,
+      id: "app_offline",
+      css: "app_offline_status",
+      hidden: true,
+    };
+
     function uiWide() {
       const header = {
         view: "toolbar",
@@ -23,7 +35,7 @@ export default class AppView extends JetView {
           },
           {
             view: "icon",
-            id:"app:setting",
+            id: "app:setting",
             icon: "mdi mdi-dots-vertical",
             popup: {
               view: "popup",
@@ -48,11 +60,35 @@ export default class AppView extends JetView {
                 on: {
                   onItemClick: function (id) {
                     if (id == "app_install") {
+                      installApp();
+                      if(!stateSW.isReadyToInstall){
+                        const popList = this;
+                        const arr = popList
+                          .serialize()
+                          .filter((item) => item.id !== "app_install");
+                        popList.clearAll();
+                        popList.parse(arr);
+                      }
                     } else if (id == "profile") {
                       $$("app:setting").$scope.ui(ProfileWindow).show();
                     }
                     this.getParentView().hide();
                   },
+                },
+              },
+              on: {
+                onBeforeShow: function () {
+                  const isReady = stateSW.isReadyToInstall;
+                  console.log("isReady", isReady);
+
+                  if (!isReady) {
+                    const popList = this.getChildViews()[0];
+                    const arr = popList
+                      .serialize()
+                      .filter((item) => item.id !== "app_install");
+                    popList.clearAll();
+                    popList.parse(arr);
+                  }
                 },
               },
             },
@@ -82,20 +118,25 @@ export default class AppView extends JetView {
         type: "clean",
         paddingX: 5,
         css: "app_layout",
-        cols: [
+        rows: [
+          offlineStatus,
           {
-            width: 250,
-            rows: [
+            cols: [
               {
-                css: "webix_shadow_medium",
-                rows: [header, menu],
+                width: 250,
+                rows: [
+                  {
+                    css: "webix_shadow_medium",
+                    rows: [header, menu],
+                  },
+                ],
+              },
+              { view: "resizer", css: "z_content_ver_resizer" },
+              {
+                css: "z_content_ver_border",
+                rows: [{ $subview: true }],
               },
             ],
-          },
-          { view: "resizer", css: "z_content_ver_resizer" },
-          {
-            css: "z_content_ver_border",
-            rows: [{ $subview: true }],
           },
         ],
       };
@@ -114,20 +155,25 @@ export default class AppView extends JetView {
                 width: lfPadding,
               },
               {
-                cols: [
+                rows: [
+                  offlineStatus,
                   {
-                    width: 250,
-                    rows: [
+                    cols: [
                       {
-                        css: "webix_shadow_medium",
-                        rows: [header, menu],
+                        width: 250,
+                        rows: [
+                          {
+                            css: "webix_shadow_medium",
+                            rows: [header, menu],
+                          },
+                        ],
+                      },
+                      { view: "resizer", css: "z_content_ver_resizer" },
+                      {
+                        css: "z_content_ver_border",
+                        rows: [{ $subview: true }],
                       },
                     ],
-                  },
-                  { view: "resizer", css: "z_content_ver_resizer" },
-                  {
-                    css: "z_content_ver_border",
-                    rows: [{ $subview: true }],
                   },
                 ],
               },
@@ -204,5 +250,6 @@ export default class AppView extends JetView {
     webix.event(window, "resize", function (e) {
       // $$("main_layout2").adjust()
     });
+
   }
 }

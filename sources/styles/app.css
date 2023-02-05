@@ -41,9 +41,35 @@
 
 .invalid_login {
     -webkit-animation: formshake .5s linear;
+    animation: formshake .5s linear;
 }
 
 @-webkit-keyframes formshake {
+
+    8%,
+    41% {
+        -webkit-transform: translateX(-10px);
+    }
+
+    25%,
+    58% {
+        -webkit-transform: translateX(10px);
+    }
+
+    75% {
+        -webkit-transform: translateX(-5px);
+    }
+
+    92% {
+        -webkit-transform: translateX(5px);
+    }
+
+    0%,
+    100% {
+        -webkit-transform: translateX(0);
+    }
+}
+@keyframes formshake {
 
     8%,
     41% {
@@ -99,9 +125,6 @@ background: linear-gradient(0deg, rgba(34,193,195,1) 0%, rgba(255,255,255,1) 100
     letter-spacing: 0px;
 }
 
-.z_content_ver_border {
-    /* border-left: 1px solid red !important; */
-}
 
 .z_content_ver_resizer {
     background: #e1e1e1;
@@ -614,4 +637,15 @@ p#img_screenshot_empty {
     font-style: italic;
     font-size: 12px;
     color:  grey;
+}
+
+.app_offline_status{
+    /* background: #f14668;
+    color: #fff; */
+    font-size: 12px;
+    text-align: center;
+}
+
+.app_offline_status .webix_template{
+    padding: 0;
 }
