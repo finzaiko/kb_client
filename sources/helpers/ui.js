@@ -64,3 +64,12 @@ export function showError(xhr) {
     text: `${xhr.status}`,
   });
 }
+
+
+export function subTime(objDate, intHours) {
+  var mls = objDate.getTime();
+  var addMls = (intHours * 60) * 60 * 1000;
+  var newD = new Date(mls - addMls);
+  return newD.getTime();
+}
+

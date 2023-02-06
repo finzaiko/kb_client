@@ -60,3 +60,7 @@ self.addEventListener("activate", function (event) {
       .then(() => self.clients.claim())
   );
 });
+
+self.addEventListener("sync", (event) => {
+  console.log("SW: Sync event: " + event);
+});

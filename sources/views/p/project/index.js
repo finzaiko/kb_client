@@ -173,6 +173,7 @@ export default class ProjectPage extends JetView {
       window.history.replaceState("", "", oldUrl);
       projectTblId.hideProgress();
       projectTblId.enable();
+
     }
   }
 }

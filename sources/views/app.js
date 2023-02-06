@@ -1,11 +1,9 @@
 import { JetView } from "webix-jet";
 import { APP_NAME } from "../config/config";
+import { readIDB, writeIDB } from "../helpers/db";
 import { getScreenSize, isInt, isMobileDevice } from "../helpers/ui";
 import { getMyProject, state } from "../models/Project";
-import {
-  installApp,
-  state as stateSW,
-} from "../models/ServiceWorker";
+import { installApp, state as stateSW } from "../models/ServiceWorker";
 import { ProfileWindow } from "./profile";
 
 export default class AppView extends JetView {
@@ -61,7 +59,7 @@ export default class AppView extends JetView {
                   onItemClick: function (id) {
                     if (id == "app_install") {
                       installApp();
-                      if(!stateSW.isReadyToInstall){
+                      if (!stateSW.isReadyToInstall) {
                         const popList = this;
                         const arr = popList
                           .serialize()
@@ -246,10 +244,19 @@ export default class AppView extends JetView {
           this.app.show("/app/p.project");
         }
       }
+
+      // Save to indexeddb
+      writeIDB(r);
+
+      // test
+      setTimeout(() => {
+        readIDB().then((r) => {
+          console.log("r", r);
+        });
+      }, 1000);
     });
     webix.event(window, "resize", function (e) {
       // $$("main_layout2").adjust()
     });
-
   }
 }

@@ -2,9 +2,9 @@ import "./styles/app.css";
 import "animate.css";
 import { JetApp, EmptyRouter, HashRouter, plugins } from "webix-jet";
 import session from "./models/session";
-import { getScreenSize } from "./helpers/ui";
-import { APP_NAME } from "./config/config";
-import { initSW } from "./models/ServiceWorker";
+import { getScreenSize, subTime } from "./helpers/ui";
+import { APP_NAME, LAST_VISIT, OFFLINE_DURATION } from "./config/config";
+import { initSW, isOnline, state as stateSW } from "./models/ServiceWorker";
 
 webix.protoUI(
   {
@@ -81,11 +81,22 @@ export default class MyApp extends JetApp {
 
     super({ ...defaults, ...config });
 
-    this.use(plugins.User, {
-      model: session,
-      // ping: 10000,
-      // afterLogin: getScreenSize() == "wide" ? "/app/start" : "/mobile/start",
+    // Handle offline session
+    const lastVisit = webix.storage.cookie.get(LAST_VISIT);
+    const nowSub = subTime(new Date(), OFFLINE_DURATION);
+    isOnline().then((ol) => {
+      if ((isNaN(lastVisit) || nowSub <= lastVisit) && ol) {
+        console.log("Online network-----------");
+        this.use(plugins.User, {
+          model: session,
+          // ping: 10000,
+        });
+      } else {
+        console.log("Offline network-----------");
+        this.show("/app/p.project");
+      }
     });
+    // END: Handle offline session
   }
 }
 
@@ -96,7 +107,9 @@ if (!BUILD_AS_MODULE) {
     app.render();
 
     app.ready.then(() => {
-      /* do something */
+      const now = new Date().getTime();
+      console.log("now", now);
+      webix.storage.cookie.put(LAST_VISIT, now);
     });
 
     initSW();

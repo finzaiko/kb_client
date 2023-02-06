@@ -16,6 +16,7 @@ import { mergeByKey } from "../../../helpers/api";
 
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
+import { readIDB, writeIDB } from "../../../helpers/db";
 TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo("en-US");
 
@@ -190,7 +191,10 @@ export default class TaskPage extends JetView {
                               if (val.length > 0) {
                                 doSearchTask(val);
                               }
-                              this.getParentView().getParentView().getParentView().hide();
+                              this.getParentView()
+                                .getParentView()
+                                .getParentView()
+                                .hide();
                             },
                           },
                         ],

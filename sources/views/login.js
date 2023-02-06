@@ -2,6 +2,7 @@ import { JetView } from "webix-jet";
 import { APP_NAME } from "../config/config";
 import { getScreenSize } from "../helpers/ui";
 import { getUserDecoded } from "../models/UserProfile";
+import { isOnline, state as stateSW } from "../models/ServiceWorker";
 
 export default class LoginView extends JetView {
   config() {
@@ -154,6 +155,15 @@ export default class LoginView extends JetView {
 
   init(view) {
     view.$view.querySelector("input").focus();
+  }
+
+  async ready() {
+    setTimeout(() => {
+      console.log("    stateSW.isOnline", stateSW.isOnline);
+    }, 1000);
+
+    const isONline = await isOnline();
+    console.log("isONline=====================", isONline);
   }
 
   do_login() {

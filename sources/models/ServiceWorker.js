@@ -3,6 +3,7 @@ import { BACKEND_URL } from "../config/config";
 export let state = {
   deferredPrompt: null,
   isReadyToInstall: false,
+  isOnline: true,
 };
 
 export function initSW() {
@@ -46,10 +47,12 @@ export function installApp() {
 
 export function handleConnection() {
   if (navigator.onLine) {
+    state.isOnline = true;
     isReachable(getServerUrl()).then(function (online) {
       if (online) {
         setTimeout(() => $$("app_offline").hide(), 1000);
       } else {
+        state.isOnline = false;
         setTimeout(() => {
           $$("app_offline").show();
           $$("app_offline").setHTML(
@@ -59,6 +62,7 @@ export function handleConnection() {
       }
     });
   } else {
+    state.isOnline = false;
     setTimeout(() => {
       $$("app_offline").show();
       $$("app_offline").setHTML(
@@ -68,12 +72,26 @@ export function handleConnection() {
   }
 }
 
+export function isOnline() {
+  return new Promise((resolve, reject) => {
+    if (navigator.onLine) {
+      const isNetOk = isReachable(getServerUrl()).then((ol) => ol);
+      if (isNetOk) {
+        resolve(isNetOk);
+      } else {
+        resolve(true);
+      }
+    } else {
+      resolve(false);
+    }
+  });
+}
 async function isReachable(url) {
   try {
     const resp = await fetch(url, { method: "HEAD", mode: "no-cors" });
     return resp && (resp.ok || resp.type === "opaque");
   } catch (err) {
-    console.warn("[conn test failure]:", err);
+    return false;
   }
 }
 
