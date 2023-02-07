@@ -1,6 +1,8 @@
 import { JetView } from "webix-jet";
-import { APP_NAME } from "../config/config";
-import { readIDB, writeIDB } from "../helpers/db";
+import { APP_NAME, PROJECT_STORE_NAME } from "../config/config";
+import {
+  addStoreIDB,
+} from "../helpers/db";
 import { getScreenSize, isInt, isMobileDevice } from "../helpers/ui";
 import { getMyProject, state } from "../models/Project";
 import { installApp, state as stateSW } from "../models/ServiceWorker";
@@ -228,8 +230,10 @@ export default class AppView extends JetView {
     return getScreenSize() == "wide" ? uiWide() : uiSmall();
   }
   init() {}
-  urlChange(_, url) {}
+  urlChange(_, url) {
+  }
   ready(view, url) {
+
     getMyProject().then((r) => {
       $$("app:myproject").parse(r, "json", true);
       let selProject = url.find((p) => {
@@ -246,14 +250,7 @@ export default class AppView extends JetView {
       }
 
       // Save to indexeddb
-      writeIDB(r);
-
-      // test
-      setTimeout(() => {
-        readIDB().then((r) => {
-          console.log("r", r);
-        });
-      }, 1000);
+      addStoreIDB(PROJECT_STORE_NAME, r);
     });
     webix.event(window, "resize", function (e) {
       // $$("main_layout2").adjust()

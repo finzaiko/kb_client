@@ -16,7 +16,9 @@ import { mergeByKey } from "../../../helpers/api";
 
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
-import { readIDB, writeIDB } from "../../../helpers/db";
+// import { readIDB, writeIDB } from "../../../helpers/db";
+import { DB_VERSION, TASK_STORE_NAME } from "../../../config/config";
+import { addStoreIDB } from "../../../helpers/db";
 TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo("en-US");
 
@@ -434,6 +436,11 @@ export default class TaskPage extends JetView {
         this.$$(prefix + "table").parse(tasks, "json", true);
         taskTblId.enable();
         taskTblId.hideProgress();
+
+        console.log('tasks',tasks);
+
+        // Save to indexeddb
+        addStoreIDB(TASK_STORE_NAME, tasks);
       }
     } else {
       const project = await getProjectById(stateProject.selId);
@@ -465,6 +472,9 @@ export default class TaskPage extends JetView {
         this.$$(prefix + "table").parse(tasks, "json", true);
         taskTblId.enable();
         taskTblId.hideProgress();
+
+        // Save to indexeddb
+        addStoreIDB(TASK_STORE_NAME, tasks);
       }
     } else {
       const taskTblId = $$(prefix + "table");
@@ -480,6 +490,10 @@ export default class TaskPage extends JetView {
       this.$$(prefix + "table").parse(tasks, "json", true);
       taskTblId.enable();
       taskTblId.hideProgress();
+
+      // Save to indexeddb
+      addStoreIDB(TASK_STORE_NAME, tasks);
+
       FloatingButton("create_task_float", function () {
         _scope.show("p.task.add?project_id=" + stateProject.selId);
       }).show();

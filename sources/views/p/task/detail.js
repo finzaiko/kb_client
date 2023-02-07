@@ -9,7 +9,7 @@ import {
   uploadByTaskId,
 } from "../../../models/Task";
 import { getProjectById, state as stateProject } from "../../../models/Project";
-import { BACKEND_URL } from "../../../config/config";
+import { BACKEND_URL, COMMENT_STORE_NAME } from "../../../config/config";
 import { getDateFormatted, getScreenSize } from "../../../helpers/ui";
 import {
   createComment,
@@ -21,6 +21,7 @@ import {
 import { TaskAttachScreenshot } from "./TaskAttachScreenshot";
 import { TaskPhotoPreview } from "./TaskPhotoPreview";
 import { userProfile } from "../../../models/UserProfile";
+import { addStoreIDB } from "../../../helpers/db";
 
 const prefix = state.prefix + "_detail_";
 const prefixAttach = state.prefix + "_attachscreen_";
@@ -42,16 +43,15 @@ function removeTaskById(_this, selId) {
         taskPanelId.showProgress();
         taskPanelId.disable();
 
-        removeTask(selId)
-          .then((_) => {
-            webix.message({
-              text: "File deleted",
-              type: "success",
-            });
-            taskPanelId.hideProgress();
-            taskPanelId.enable();
-            backToGrid(_this);
-          })
+        removeTask(selId).then((_) => {
+          webix.message({
+            text: "File deleted",
+            type: "success",
+          });
+          taskPanelId.hideProgress();
+          taskPanelId.enable();
+          backToGrid(_this);
+        });
       }
     },
   });
@@ -151,6 +151,10 @@ async function loadComments() {
   const comments = await getAllComment(state.selId);
   const commentListId = $$(prefix + "comment_list");
   stateComment.dataComments = comments;
+
+  // Save to indexeddb
+  addStoreIDB(COMMENT_STORE_NAME, comments);
+
   let outputHtml = "";
   comments.forEach((obj) => {
     outputHtml += `<div class='comment_list_panel'>${

@@ -1,21 +1,53 @@
-import { DB_NAME, DB_VERSION, PROJECT_STORE_NAME } from "../config/config";
+import {
+  DB_NAME,
+  DB_VERSION,
+  PROJECT_STORE_NAME,
+  TASK_STORE_NAME,
+  COMMENT_STORE_NAME,
+} from "../config/config";
 
-function openIDB() {
-  // Check for support.
-  if (!("indexedDB" in window)) {
-    console.log("This browser doesn't support IndexedDB.");
+function idbOK() {
+  return "indexedDB" in window && !/iPad|iPhone|iPod/.test(navigator.platform);
+}
+export function openIDB(dbVersion) {
+  if (typeof dbVersion != "undefined") {
+    dbVersion = 1;
+  }
+  if (!idbOK()) {
+    console.log("IndexedDB not support");
     return;
   }
+
   return new Promise((resolve, reject) => {
-    let theDB = self.indexedDB.open(DB_NAME, DB_VERSION);
+    const openRequest = indexedDB.open(DB_NAME, dbVersion);
+    console.log("OpenIDB--------------");
 
-    theDB.onsuccess = function (event) {
-      console.log("openIDB: Successfully opened database");
-      resolve(event.target.result);
+    openRequest.onupgradeneeded = function (e) {
+      console.log("running onupgradeneeded");
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(`${PROJECT_STORE_NAME}`)) {
+        db.createObjectStore(`${PROJECT_STORE_NAME}`, {
+          autoIncrement: false,
+        });
+      }
+      if (!db.objectStoreNames.contains(`${TASK_STORE_NAME}`)) {
+        db.createObjectStore(`${TASK_STORE_NAME}`, {
+          autoIncrement: false,
+        });
+      }
+      if (!db.objectStoreNames.contains(`${COMMENT_STORE_NAME}`)) {
+        db.createObjectStore(`${COMMENT_STORE_NAME}`, {
+          autoIncrement: false,
+        });
+      }
     };
-
-    theDB.onerror = function (event) {
-      let msg = `Database error ${theDB.error}`;
+    openRequest.onsuccess = function (e) {
+      console.log("running onsuccess");
+      // db = e.target.result;
+      resolve(e.target.result);
+    };
+    openRequest.onerror = function (e) {
+      let msg = `Database error: ${theDB.error}`;
       console.error(`openIDB: ${msg}`);
       webix.alert({
         title: "Database Error",
@@ -23,52 +55,38 @@ function openIDB() {
         type: "alert-error",
       });
       reject(msg);
-    };
-
-    theDB.onupgradeneeded = function (event) {
-      console.log("openIDB: Database upgrade needed", event);
+      console.dir(e);
     };
   });
 }
 
-export function writeIDB(item) {
-  openIDB().then((db) => {
-    const tx = db.transaction([`${PROJECT_STORE_NAME}`], "readwrite");
-    item.forEach((data) => {
-      tx.objectStore(`${PROJECT_STORE_NAME}`).add(data, data.id);
+export function addStoreIDB(storeName, data) {
+  console.log(`Store: ${storeName} adding...`);
+
+  if (!Array.isArray(data)) {
+    console.error("Data must an Array");
+    return;
+  }
+
+  openIDB(DB_VERSION).then((dbx) => {
+    const tx = dbx.transaction([`${storeName}`], "readwrite");
+    const store = tx.objectStore(`${storeName}`);
+    let request;
+    data.forEach((item) => {
+      console.log("item", item);
+
+      if (typeof item.id == "undefined") {
+        console.error("Data must have an ID");
+        return;
+      }
+      request = store.add(item, item.id);
     });
-    return tx.complete;
-  });
-}
 
-export function readIDB() {
-  return new Promise((resolve, reject) => {
-    let items = [];
-    openIDB()
-      .then((db) => {
-        let request = db
-          .transaction([`${PROJECT_STORE_NAME}`], "readonly")
-          .objectStore(`${PROJECT_STORE_NAME}`)
-          .openCursor();
-
-        request.onsuccess = function (event) {
-          var cursor = event.target.result;
-          if (cursor) {
-            items.push(cursor.value);
-            cursor.continue();
-          } else {
-            resolve({ db: db, items: items });
-          }
-        };
-
-        request.onerror = function (event) {
-          console.error(request.error);
-          reject(request.error);
-        };
-      })
-      .catch((error) => {
-        console.error(request.error);
-        reject(request.error);
-      });
+    request.onerror = function (e) {
+      console.log("Error", e.target.error.name);
+    };
+    request.onsuccess = function (e) {
+      console.log(`Ok ${storeName} added`);
+    };
   });
 }

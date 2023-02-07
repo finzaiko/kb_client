@@ -68,7 +68,6 @@ webix.protoUI(
 
 export default class MyApp extends JetApp {
   constructor(config) {
-    console.log("getScreenSize()", getScreenSize());
 
     const defaults = {
       id: APPNAME,
@@ -108,7 +107,6 @@ if (!BUILD_AS_MODULE) {
 
     app.ready.then(() => {
       const now = new Date().getTime();
-      console.log("now", now);
       webix.storage.cookie.put(LAST_VISIT, now);
     });
 
