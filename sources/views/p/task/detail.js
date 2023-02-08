@@ -8,9 +8,9 @@ import {
   state,
   uploadByTaskId,
 } from "../../../models/Task";
-import { getProjectById, state as stateProject } from "../../../models/Project";
-import { BACKEND_URL, COMMENT_STORE_NAME } from "../../../config/config";
-import { getDateFormatted, getScreenSize } from "../../../helpers/ui";
+import { state as stateProject } from "../../../models/Project";
+import { BACKEND_URL } from "../../../config/config";
+import { getDateFormatted } from "../../../helpers/ui";
 import {
   createComment,
   getAllComment,
@@ -21,7 +21,6 @@ import {
 import { TaskAttachScreenshot } from "./TaskAttachScreenshot";
 import { TaskPhotoPreview } from "./TaskPhotoPreview";
 import { userProfile } from "../../../models/UserProfile";
-import { addStoreIDB } from "../../../helpers/db";
 
 const prefix = state.prefix + "_detail_";
 const prefixAttach = state.prefix + "_attachscreen_";
@@ -151,9 +150,6 @@ async function loadComments() {
   const comments = await getAllComment(state.selId);
   const commentListId = $$(prefix + "comment_list");
   stateComment.dataComments = comments;
-
-  // Save to indexeddb
-  addStoreIDB(COMMENT_STORE_NAME, comments);
 
   let outputHtml = "";
   comments.forEach((obj) => {

@@ -649,3 +649,7 @@ p#img_screenshot_empty {
 .app_offline_status .webix_template{
     padding: 0;
 }
+
+.z_navbar{
+    border-top-width: 0 !important;
+}

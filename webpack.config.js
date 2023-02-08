@@ -1,8 +1,8 @@
 const path = require("path");
 const webpack = require("webpack");
 const replace = require("replace");
-// const CopyPlugin = require("copy-webpack-plugin");
-// const WebpackCopyBundle = require("webpack-copy-bundle");
+const WebpackShellPluginNext = require("webpack-shell-plugin-next");
+const ReplaceInFileWebpackPlugin = require("replace-in-file-webpack-plugin");
 
 module.exports = function (env) {
   const pack = require("./package.json");
@@ -12,10 +12,11 @@ module.exports = function (env) {
   const asmodule = !!(env && env.module);
   const standalone = !!(env && env.standalone);
 
+  const build = new Date() * 1;
+
   const babelSettings = {
     extends: path.join(__dirname, "/.babelrc"),
   };
-
   let config = {
     mode: production ? "production" : "development",
     entry: {
@@ -66,7 +67,7 @@ module.exports = function (env) {
           ENDPOINT: JSON.stringify(env.endpoint),
         },
       }),
-	  /*
+      /*
       new CopyPlugin({
       	patterns: [
       	  { from: "codebase/myapp.css", to: "../www/" },
@@ -74,9 +75,47 @@ module.exports = function (env) {
       	],
         }),
 		*/
-      // new WebpackCopyBundle({
-      //   myapp: "../www/",
-      // }),
+      new WebpackShellPluginNext({
+        onBuildStart: {
+          scripts: ['echo "Webpack Start.."'],
+          blocking: true,
+          parallel: false,
+        },
+        onBuildEnd: {
+          // scripts: ['echo "Webpack End"'],
+          scripts: [
+            `cp index.html www/ && \
+            cp -R codebase www/ && \
+            cp -R assets www/ && \
+            cp sw.js www/ && \
+            cp app.webmanifest www/ && \
+            sed -i 's,http://localhost:9595/, '"${JSON.stringify(env.endpoint)}"',g' './www/app.webmanifest'`,
+          ],
+          blocking: false,
+          parallel: true,
+        },
+      }),
+      new ReplaceInFileWebpackPlugin([
+        {
+          dir: "./www",
+          files: ["index.html"],
+          rules: [
+            {
+              search: "<title>(.*?)</title>",
+              replace: `<title>${pack.app_name}</title>`,
+            },
+            {
+              search: /[?][0-9]+/g,
+              replace: `?${build}`,
+            },
+            {
+              search: /[?][0-9]+/g,
+              replace: `?${build}`,
+            },
+          ],
+        },
+      ]),
+
     ],
     devServer: {
       client: {
@@ -112,32 +151,17 @@ module.exports = function (env) {
   // ARIFIN
 
   replace({
-	regex: "<title>(.*?)</title>",
-	replacement: `<title>${pack.app_name}</title>`,
-	paths: ["./index.html"],
-	recursive: false,
-	silent: false,
-  });
-  replace({
-	regex: "<title>(.*?)</title>",
-	replacement: `<title>${pack.app_name}</title>`,
-	paths: ["./www/index.html"],
-	recursive: false,
-	silent: false,
+    regex: "<title>(.*?)</title>",
+    replacement: `<title>${pack.app_name}</title>`,
+    paths: ["./index.html"],
+    recursive: false,
+    silent: false,
   });
 
-  const build = new Date() * 1;
   replace({
     regex: /[?][0-9]+/g,
     replacement: `?${build}`,
     paths: ["./docker-config/index.html"],
-    recursive: true,
-    silent: true,
-  });
-  replace({
-    regex: /[?][0-9]+/g,
-    replacement: `?${build}`,
-    paths: ["./www/index.html"],
     recursive: true,
     silent: true,
   });

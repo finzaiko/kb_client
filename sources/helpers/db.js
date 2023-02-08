@@ -73,8 +73,6 @@ export function addStoreIDB(storeName, data) {
     const store = tx.objectStore(`${storeName}`);
     let request;
     data.forEach((item) => {
-      console.log("item", item);
-
       if (typeof item.id == "undefined") {
         console.error("Data must have an ID");
         return;
@@ -90,3 +88,40 @@ export function addStoreIDB(storeName, data) {
     };
   });
 }
+
+export function readStoreIDB(storeName) {
+  return new Promise((resolve, reject) => {
+    let items = [];
+    openIDB(DB_VERSION)
+      .then((db) => {
+        let request = db
+          .transaction([`${storeName}`], "readonly")
+          .objectStore(`${storeName}`)
+          .openCursor();
+
+        request.onsuccess = function (event) {
+          var cursor = event.target.result;
+          if (cursor) {
+            items.push(cursor.value);
+            cursor.continue();
+          } else {
+            resolve({ db: db, items: items });
+          }
+        };
+
+        request.onerror = function (event) {
+          console.error(request.error);
+          reject(request.error);
+        };
+      })
+      .catch((error) => {
+        console.error(request.error);
+        reject(request.error);
+      });
+  });
+}
+
+// Usage: currently not implement yet for offline data
+/*
+addStoreIDB(PROJECT_STORE_NAME, [array_data]);
+*/

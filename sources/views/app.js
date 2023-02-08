@@ -1,8 +1,5 @@
 import { JetView } from "webix-jet";
-import { APP_NAME, PROJECT_STORE_NAME } from "../config/config";
-import {
-  addStoreIDB,
-} from "../helpers/db";
+import { APP_NAME } from "../config/config";
 import { getScreenSize, isInt, isMobileDevice } from "../helpers/ui";
 import { getMyProject, state } from "../models/Project";
 import { installApp, state as stateSW } from "../models/ServiceWorker";
@@ -249,8 +246,6 @@ export default class AppView extends JetView {
         }
       }
 
-      // Save to indexeddb
-      addStoreIDB(PROJECT_STORE_NAME, r);
     });
     webix.event(window, "resize", function (e) {
       // $$("main_layout2").adjust()

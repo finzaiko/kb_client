@@ -1,6 +1,5 @@
 import { JetView } from "webix-jet";
-import { APP_NAME, PROJECT_STORE_NAME, TASK_STORE_NAME } from "../../../config/config";
-import { addStoreIDB } from "../../../helpers/db";
+import { APP_NAME } from "../../../config/config";
 import { getScreenSize } from "../../../helpers/ui";
 import { removeURLParam } from "../../../helpers/url";
 import { getMyProject, state } from "../../../models/Project";
@@ -154,8 +153,6 @@ export default class ProjectPage extends JetView {
       projectTblId.hideProgress();
       projectTblId.enable();
 
-      // Save to indexeddb
-      addStoreIDB(PROJECT_STORE_NAME, projects);
     }
   }
   async ready(_, url) {

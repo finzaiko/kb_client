@@ -8,7 +8,7 @@ export let state = {
   isEdit: false,
   dataSelected: {},
   selId: null,
-  scope: {}
+  scope: {},
 };
 
 export let url = `${API_URL}/${path}`;
@@ -32,12 +32,7 @@ export function getMyProject() {
       return r.json().result;
     })
     .fail((err) => {
-      console.log('err',err);
-      // webix.alert({
-      //   type: "alert-error",
-      //   title: "Camera",
-      //   text: "Camera can not open, mediaDevices not detect",
-      // });
+      console.log("err", err);
     });
 }
 

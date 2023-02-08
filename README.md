@@ -20,6 +20,14 @@ or
 on-progress..
 ```
 
+### Try on development
+
+close this repository and run:
+```
+npm i
+npm start
+```
+
 
 ### API Modification
 
