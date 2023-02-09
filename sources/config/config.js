@@ -1,6 +1,7 @@
 export const APP_NAME = process.env.APP_NAME;
 
-export const BACKEND_URL = process.env.ENDPOINT || "http://localhost/kanboard";
+// export const BACKEND_URL = process.env.ENDPOINT || "http://localhost/kanboard";
+export const BACKEND_URL = process.env.ENDPOINT || "http://10.109.129.75/kanboard";
 export const API_URL = `${BACKEND_URL}/jsonrpc.php`;
 export const CODE_PREFIX = `kbc`;
 

@@ -4,6 +4,7 @@ import { getScreenSize } from "../../../helpers/ui";
 import { removeURLParam } from "../../../helpers/url";
 import { getMyProject, state } from "../../../models/Project";
 import { installApp, state as stateSW } from "../../../models/ServiceWorker";
+import offlineStatus from "../../../helpers/offlinestatus";
 
 import { ProfileWindow } from "../../profile";
 
@@ -11,13 +12,6 @@ const prefix = state + "_page_";
 
 export default class ProjectPage extends JetView {
   config() {
-    const offlineStatus = {
-      view: "template",
-      height: 20,
-      id: "app_offline",
-      css: "app_offline_status",
-      hidden: true,
-    };
 
     function uiSmall() {
       const toolbar = {

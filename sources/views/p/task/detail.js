@@ -21,6 +21,7 @@ import {
 import { TaskAttachScreenshot } from "./TaskAttachScreenshot";
 import { TaskPhotoPreview } from "./TaskPhotoPreview";
 import { userProfile } from "../../../models/UserProfile";
+import offlinestatus from "../../../helpers/offlinestatus";
 
 const prefix = state.prefix + "_detail_";
 const prefixAttach = state.prefix + "_attachscreen_";
@@ -572,7 +573,7 @@ export default class TaskDetailMobile extends JetView {
     };
 
     return {
-      rows: [toolbar, taskPanel],
+      rows: [offlinestatus, toolbar, taskPanel],
     };
   }
 

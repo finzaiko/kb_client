@@ -4,16 +4,10 @@ import { getScreenSize, isInt, isMobileDevice } from "../helpers/ui";
 import { getMyProject, state } from "../models/Project";
 import { installApp, state as stateSW } from "../models/ServiceWorker";
 import { ProfileWindow } from "./profile";
+import offlineStatus from "../helpers/offlinestatus";
 
 export default class AppView extends JetView {
   config() {
-    const offlineStatus = {
-      view: "template",
-      height: 14,
-      id: "app_offline",
-      css: "app_offline_status",
-      hidden: true,
-    };
 
     function uiWide() {
       const header = {

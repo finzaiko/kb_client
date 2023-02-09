@@ -10,6 +10,7 @@ import { FloatingButton } from "../../../helpers/component";
 
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
+import offlinestatus from "../../../helpers/offlinestatus";
 TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo("en-US");
 
@@ -265,7 +266,7 @@ export default class TaskPage extends JetView {
         },
       };
       return {
-        rows: [toolbar, taskGrid],
+        rows: [offlinestatus, toolbar, taskGrid],
       };
     }
 
@@ -375,17 +376,6 @@ export default class TaskPage extends JetView {
                   onLoadError: function (text, xml, xhr) {
                     showError(xhr);
                   },
-                  // onBeforeLoad: function () {
-                  //   webix.extend(this, webix.ProgressBar);
-                  //   this.disable();
-                  //   this.showProgress();
-                  // },
-                  // onAfterLoad: function () {
-                  //   setTimeout(() => {
-                  //     this.enable();
-                  //     this.hideProgress();
-                  //   }, 500);
-                  // },
                   onItemClick: function (id) {
                     // return;
                     this.$scope.show(
