@@ -49,7 +49,28 @@ if ("OPTIONS" === $_SERVER['REQUEST_METHOD']) {
 echo $container['api']->execute();
 ```
 
-#### 2. Update get task query
+#### 2. Update extendedQuery
+
+Change extendedQuery to addional usefull field method in `kanboard/app/Model/TaskFinderModel.php`
+
+```php
+ public function getExtendedQuery()
+    {
+        return $this->db
+            ->table(TaskModel::TABLE)
+            ->columns(
+                ...
+                ProjectModel::TABLE.'.name AS project_name',
+                ...
+                'uc.username AS creator_username', // <-- new
+                'uc.name AS creator_name' // <-- new
+                )
+            ->join(UserModel::TABLE, 'id', 'owner_id', TaskModel::TABLE)
+            ...
+    }
+```
+
+#### 3. Update get task query
 
 Change getAll method in `kanboard/app/Model/TaskFinderModel.php`
 to this to get all available joined data
@@ -57,7 +78,7 @@ to this to get all available joined data
 public function getAll($project_id, $status_id = TaskModel::STATUS_OPEN)
 {
     return
-        $this->getExtendedQuery()
+        $this->getExtendedQuery() // <-- new
         ->eq(TaskModel::TABLE.'.project_id', $project_id)
         ->eq(TaskModel::TABLE.'.is_active', $status_id)
         ->desc(TaskModel::TABLE.'.id') // order last update on top
@@ -65,13 +86,14 @@ public function getAll($project_id, $status_id = TaskModel::STATUS_OPEN)
 }
 ```
 
-#### 3. Update get task by id query
+#### 4. Update get task by id query
 
 Change getAll method in `kanboard/app/Model/TaskFinderModel.php`
 to this to get by id joined data
 ```php
 public function getById($task_id)
 {
-    return  $this->getExtendedQuery()->eq(TaskModel::TABLE.'.id', $task_id)->findOne();
+    return  $this->getExtendedQuery() // <-- new
+        ->eq(TaskModel::TABLE.'.id', $task_id)->findOne();
 }
 ```

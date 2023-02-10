@@ -359,7 +359,7 @@ export default class TaskPage extends JetView {
                     header: ["Progress", { content: "textFilter" }],
                   },
                   {
-                    id: "assignee_name",
+                    id: "creator_name",
                     header: ["Created by", { content: "textFilter" }],
                     width: 100,
                   },
@@ -367,6 +367,7 @@ export default class TaskPage extends JetView {
                     id: "updated_at",
                     header: "Update at",
                     width: 150,
+                    adjust:true,
                     template: function (obj, common) {
                       return getDateFormatted(obj.date_modification);
                     },

@@ -226,7 +226,7 @@ export default class TaskDetailMobile extends JetView {
                               obj.title
                             }</div> Description: ${obj.description}
                             <div class='task_detail_foot'>creator: ${
-                              obj.assignee_name
+                              obj.creator_name
                             } modified: ${getDateFormatted(
                 obj.date_modification
               )}</div>
