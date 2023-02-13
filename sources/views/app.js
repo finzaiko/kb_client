@@ -241,8 +241,10 @@ export default class AppView extends JetView {
       }
 
     });
+    /*
     webix.event(window, "resize", function (e) {
-      // $$("main_layout2").adjust()
+      // TODO:
     });
+    */
   }
 }

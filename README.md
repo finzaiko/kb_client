@@ -2,6 +2,14 @@
 
 [Kanboard](https://kanboard.org/) frontend UI powered by Webix
 
+### Screenshot
+
+| ![Project list](./screenshot/screen1.png "Project list") | ![Task list](./screenshot/screen2.png "Task list") | ![Task detail](/./screenshot/screen3.png "Task detail") |
+|---|---|---|
+
+
+![Desktop page](/./screenshot/screen4.png "Desktop page")
+
 ### Installation
 
 #### 1. Build app
@@ -22,7 +30,7 @@ on-progress..
 
 ### Try on development
 
-close this repository and run:
+Clone this repository and run:
 ```
 npm i
 npm start
