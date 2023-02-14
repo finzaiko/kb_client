@@ -77,7 +77,7 @@ module.exports = function (env) {
 		*/
       new WebpackShellPluginNext({
         onBuildStart: {
-          scripts: ['echo "Webpack Start.." && mkdir www'],
+          scripts: ['echo "Webpack Start.." && rm -rf www && mkdir www'],
           blocking: true,
           parallel: false,
         },

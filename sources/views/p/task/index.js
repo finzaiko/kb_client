@@ -236,7 +236,8 @@ export default class TaskPage extends JetView {
               return `<div class='task_item'>
                 <span class='task_item_title'>${obj.id} - ${obj.title}</span>
                 <span class='task_item_progress'> - ${obj.column_name}</span>
-                <span class='task_item_creator'>(${obj.assignee_name})</span>
+                <span class='task_item_creator'>(${obj.creator_name})</span>
+                <span class='mdi mdi-checkbox-blank' style='color:${typeof obj.color!="undefined" ? obj.color.background : "transparent"}'></span>
                 <br>
                   <span class='task_item_desc'>${obj.description}</span>
                   <span class='task_item_trailing'>${timeAgo.format(
