@@ -77,6 +77,13 @@ async function doSearchTask(queryString) {
 export default class TaskPage extends JetView {
   config() {
     _scope = this;
+
+    function markBackground(value, config){
+      if(typeof config.color!="undefined"){
+      return { "background":config.color.background };
+      }
+    }
+
     function uiSmall(_this) {
       const toolbar = {
         view: "toolbar",
@@ -342,6 +349,7 @@ export default class TaskPage extends JetView {
                   {
                     id: "id",
                     header: ["#", { content: "textFilter" }],
+                    cssFormat: markBackground,
                     adjust: true,
                   },
                   {

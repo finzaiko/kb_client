@@ -4,7 +4,68 @@
     --base-primary-bg: #1CA1C1;
     --base-primary-bg-dark: #057f9e;
     --base-primary-bg-light: #3bc7eb;
+    /* --------------------------------------- */
+    color-scheme: light;
+    --color-brand-prim: #3860f4;
+    --color-brand-cont: #fff;
+    --color-brand-secd: #dae4fe;
+    --color-info-prim: #3860f4;
+    --color-info-cont: #d9e7ff;
+    --color-reminder-prim: #be7b04;
+    --color-reminder-cont: #ffed9d;
+    --color-warning-prim: #d9371c;
+    --color-warning-cont: #ffd9d9;
+    --color-warning-secd: #e79392;
+    --color-success-prim: #428b43;
+    --color-success-cont: #c4f7c5;
+    --color-greyscale-1: #02021d;
+    --color-greyscale-2: rgba(0, 0, 0, .15);
+    --color-greyscale-3: #e4e9f0;
+    --color-greyscale-4: #f0f3f7;
+    --color-greyscale-5: #f7f9fc;
+    --color-greyscale-6: #fff;
+    --color-task-grey-bg: #fff;
+    --color-task-grey-bdr: #dce0e7;
+    --color-task-dark-grey-bg: #e7eaef;
+    --color-task-dark-grey-bdr: #cfd2d9;
+    --color-task-pink-bg: #ffb3cc;
+    --color-task-pink-bdr: #f99dbe;
+    --color-task-red-bg: #ffbdbd;
+    --color-task-red-bdr: #ffa7a7;
+    --color-task-orange-bg: #ffd3ab;
+    --color-task-orange-bdr: #ffbc80;
+    --color-task-deep-orange-bg: #fdbca8;
+    --color-task-deep-orange-bdr: #fda489;
+    --color-task-yellow-bg: #ffe778;
+    --color-task-yellow-bdr: #f7d349;
+    --color-task-amber-bg: #fdce63;
+    --color-task-amber-bdr: #edb942;
+    --color-task-brown-bg: #d9d2d0;
+    --color-task-brown-bdr: #d1bbb7;
+    --color-task-lime-bg: #e6ee9c;
+    --color-task-lime-bdr: #d5db3e;
+    --color-task-light-green-bg: #dcedc8;
+    --color-task-light-green-bdr: #acdb82;
+    --color-task-green-bg: #bdf4cb;
+    --color-task-green-bdr: #87eda1;
+    --color-task-cyan-bg: #b7faf7;
+    --color-task-cyan-bdr: #9ae7e4;
+    --color-task-teal-bg: #aaecdd;
+    --color-task-teal-bdr: #87dbc7;
+    --color-task-blue-bg: #dae4ff;
+    --color-task-blue-bdr: #c3ccf1;
+    --color-task-purple-bg: #eacbff;
+    --color-task-purple-bdr: #dfb1ff;
+    --color-code-a: #c56200;
+    --color-code-b: #d92792;
+    --color-code-c: #cc5e91;
+    --color-code-d: #3787c7;
+    --color-code-e: #0d7d6c;
+    --color-code-f: #7641bb;
+    --color-shadow-lit: rgba(0, 0, 0, .04);
+    --color-shadow-hev: rgba(0, 0, 0, .08);
 }
+/* ARIFIN--------- */
 
 .webixappstart {
     opacity: 0;
