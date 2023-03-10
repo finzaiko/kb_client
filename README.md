@@ -25,9 +25,9 @@ or
 
 #### Using Docker
 ```
-on-progress..
+docker run --rm --name kbclient -p 8085:80 -d -e "API_SERVER=http://localhost/kanboard" finzaiko/kb_client:1.0
 ```
-
+and open in browser: `http://localhost:8085`
 ### Try on development
 
 Clone this repository and run:

@@ -186,14 +186,14 @@ background: linear-gradient(0deg, rgba(34,193,195,1) 0%, rgba(255,255,255,1) 100
     letter-spacing: 0px;
 }
 
-
 .z_content_ver_resizer {
     background: #e1e1e1;
+    border-width: 0 !important;
 }
 
 .z_content_ver_resizer .webix_resizer_content {
     background: #1CA1C1;
-    margin-top: 1px;
+    margin-top: 0;
     height: 42px;
 }
 
